@@ -57,8 +57,8 @@ const DEFAULT_PREVIEW_ITEMS = [
     title: '2',
     ratio: 'Work Preview - Slot 2 (16:9)',
     category: 'Work Preview',
-    img: '/uploads/img_1787333909377_4uott.png',
-    mediaUrl: '/uploads/img_1787333909377_4uott.png'
+    img: '/uploads/img_1787335251860_szynt.jpg',
+    mediaUrl: '/uploads/img_1787335251860_szynt.jpg'
   },
   {
     _id: 'slot-3',
@@ -66,8 +66,8 @@ const DEFAULT_PREVIEW_ITEMS = [
     title: '3',
     ratio: 'Work Preview - Slot 3 (4:5)',
     category: 'Work Preview',
-    img: '/uploads/img_1787335486546_tep7i.jpg',
-    mediaUrl: '/uploads/img_1787335486546_tep7i.jpg'
+    img: '/uploads/img_1787333909377_4uott.png',
+    mediaUrl: '/uploads/img_1787333909377_4uott.png'
   }
 ];
 
@@ -95,26 +95,9 @@ const Home = () => {
   }, []);
 
   /* Strictly assign the exact media items for Work Preview slots from database */
-  const slot1 = (previewItems || []).find(i => i.ratio?.includes('Slot 1') || i.title === '1') || {
-    _id: 'slot-1',
-    ratio: 'Work Preview - Slot 1 (9:16)',
-    img: '/card_own_power.png',
-    mediaUrl: '/card_own_power.png'
-  };
-
-  const slot2 = (previewItems || []).find(i => i.ratio?.includes('Slot 2') || i.title === '2') || {
-    _id: 'slot-2',
-    ratio: 'Work Preview - Slot 2 (16:9)',
-    img: '/uploads/vid_1787332491700_mygcu.mp4',
-    mediaUrl: '/uploads/vid_1787332491700_mygcu.mp4'
-  };
-
-  const slot3 = (previewItems || []).find(i => i.ratio?.includes('Slot 3') || i.title === '3') || {
-    _id: 'slot-3',
-    ratio: 'Work Preview - Slot 3 (4:5)',
-    img: '/uploads/img_1787333909377_4uott.png',
-    mediaUrl: '/uploads/img_1787333909377_4uott.png'
-  };
+  const slot1 = (previewItems || []).find(i => i.ratio?.includes('Slot 1') || i.title === '1') || DEFAULT_PREVIEW_ITEMS[0];
+  const slot2 = (previewItems || []).find(i => i.ratio?.includes('Slot 2') || i.title === '2') || DEFAULT_PREVIEW_ITEMS[1];
+  const slot3 = (previewItems || []).find(i => i.ratio?.includes('Slot 3') || i.title === '3') || DEFAULT_PREVIEW_ITEMS[2];
 
   return (
     <div className="flex flex-col">
