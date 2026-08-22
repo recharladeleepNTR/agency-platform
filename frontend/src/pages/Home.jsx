@@ -405,6 +405,7 @@ const Home = () => {
                   <img
                     src={getMediaUrl(slot1.img || slot1.mediaUrl)}
                     alt="Reel / Short Preview"
+                    onError={(e) => { e.target.onerror = null; e.target.src = '/card_own_power.png'; }}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 )
@@ -440,6 +441,7 @@ const Home = () => {
                   <img
                     src={getMediaUrl(slot2.img || slot2.mediaUrl)}
                     alt="Widescreen Video Preview"
+                    onError={(e) => { e.target.onerror = null; e.target.src = '/card_own_power.png'; }}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 )
@@ -475,6 +477,7 @@ const Home = () => {
                   <img
                     src={getMediaUrl(slot3.img || slot3.mediaUrl)}
                     alt="Social Post Preview"
+                    onError={(e) => { e.target.onerror = null; e.target.src = '/card_own_power.png'; }}
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                 )

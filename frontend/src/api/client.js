@@ -43,11 +43,15 @@ export const API_URL = API_BASE_URLS[0];
 
 export const getMediaUrl = (url) => {
   if (!url || typeof url !== 'string') return '/card_own_power.png';
+  if (url.includes('localhost') && url.includes('/uploads/')) {
+    const parts = url.split('/uploads/');
+    return `/uploads/${parts[1]}`;
+  }
   if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:') || url.startsWith('blob:')) {
     return url;
   }
-  if (url.startsWith('/uploads')) {
-    return `http://localhost:5001${url}`;
+  if (url.startsWith('/uploads') || url.startsWith('uploads')) {
+    return url.startsWith('/') ? url : `/${url}`;
   }
   return url;
 };
