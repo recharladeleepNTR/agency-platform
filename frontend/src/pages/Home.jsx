@@ -94,10 +94,27 @@ const Home = () => {
     loadData();
   }, []);
 
-  /* Strictly assign the exact media items for Work Preview slots */
-  const slot1 = (previewItems || []).find(i => i.img && i.img.includes('vid_')) || DEFAULT_PREVIEW_ITEMS[0];
-  const slot2 = (previewItems || []).find(i => i.img && i.img.includes('img_1787333909377')) || DEFAULT_PREVIEW_ITEMS[1];
-  const slot3 = (previewItems || []).find(i => i.img && i.img.includes('img_1787335486546')) || DEFAULT_PREVIEW_ITEMS[2];
+  /* Strictly assign the exact media items for Work Preview slots from database */
+  const slot1 = (previewItems || []).find(i => i.ratio?.includes('Slot 1') || i.title === '1') || {
+    _id: 'slot-1',
+    ratio: 'Work Preview - Slot 1 (9:16)',
+    img: '/card_own_power.png',
+    mediaUrl: '/card_own_power.png'
+  };
+
+  const slot2 = (previewItems || []).find(i => i.ratio?.includes('Slot 2') || i.title === '2') || {
+    _id: 'slot-2',
+    ratio: 'Work Preview - Slot 2 (16:9)',
+    img: '/uploads/vid_1787332491700_mygcu.mp4',
+    mediaUrl: '/uploads/vid_1787332491700_mygcu.mp4'
+  };
+
+  const slot3 = (previewItems || []).find(i => i.ratio?.includes('Slot 3') || i.title === '3') || {
+    _id: 'slot-3',
+    ratio: 'Work Preview - Slot 3 (4:5)',
+    img: '/uploads/img_1787333909377_4uott.png',
+    mediaUrl: '/uploads/img_1787333909377_4uott.png'
+  };
 
   return (
     <div className="flex flex-col">
