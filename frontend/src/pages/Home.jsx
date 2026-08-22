@@ -94,10 +94,15 @@ const Home = () => {
     loadData();
   }, []);
 
-  /* Filter Work Preview items dynamically or default to exact slots */
-  const slot1 = (previewItems || []).find(i => i.ratio?.includes('Slot 1') || i.title === '1') || DEFAULT_PREVIEW_ITEMS[0];
-  const slot2 = (previewItems || []).find(i => i.ratio?.includes('Slot 2') || i.title === '2') || DEFAULT_PREVIEW_ITEMS[1];
-  const slot3 = (previewItems || []).find(i => i.ratio?.includes('Slot 3') || i.title === '3') || DEFAULT_PREVIEW_ITEMS[2];
+  /* Filter Work Preview items strictly by ratio slot or category */
+  const workPreviewOnly = (previewItems || []).filter(i => 
+    i.category === 'Work Preview' || 
+    (i.ratio && i.ratio.includes('Work Preview'))
+  );
+
+  const slot1 = workPreviewOnly.find(i => i.ratio?.includes('Slot 1')) || DEFAULT_PREVIEW_ITEMS[0];
+  const slot2 = workPreviewOnly.find(i => i.ratio?.includes('Slot 2')) || DEFAULT_PREVIEW_ITEMS[1];
+  const slot3 = workPreviewOnly.find(i => i.ratio?.includes('Slot 3')) || DEFAULT_PREVIEW_ITEMS[2];
 
   return (
     <div className="flex flex-col">
