@@ -32,30 +32,35 @@ const getMediaUrl = (url, fallback = '/card_own_power.png') => {
 };
 
 const DEFAULT_POSTS_45 = [
-  { id: 'p1', title: 'Work Poster 1', img: '/uploads/img_1787335251860_szynt.jpg', ratio: '4:5', category: 'Design' },
-  { id: 'p2', title: 'Work Poster 2', img: '/uploads/img_1787335265295_lkbrl.jpg', ratio: '4:5', category: 'Design' },
-  { id: 'p3', title: 'Work Poster 3', img: '/uploads/img_1787335277827_huaja.jpg', ratio: '4:5', category: 'Design' },
-  { id: 'p4', title: 'Work Poster 4', img: '/uploads/img_1787335292227_aqdyj.jpg', ratio: '4:5', category: 'Design' },
-  { id: 'p5', title: 'Work Poster 5', img: '/uploads/img_1787335301578_kbkua.jpg', ratio: '4:5', category: 'Design' },
-  { id: 'p6', title: 'Work Poster 6', img: '/uploads/img_1787335313226_ekbud.jpg', ratio: '4:5', category: 'Design' },
-  { id: 'p7', title: 'Work Poster 7', img: '/uploads/img_1787335327424_4ukqc.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p1', title: 'Work Poster 1', img: '/uploads/img_1787333949894_1jmf0.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p2', title: 'Work Poster 2', img: '/uploads/img_1787333959824_d5d5t.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p3', title: 'Work Poster 3', img: '/uploads/img_1787333971022_a6gxa.png', ratio: '4:5', category: 'Design' },
+  { id: 'p4', title: 'Work Poster 4', img: '/uploads/img_1787333981872_baixa.png', ratio: '4:5', category: 'Design' },
+  { id: 'p5', title: 'Work Poster 5', img: '/uploads/img_1787333992992_iyf98.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p6', title: 'Work Poster 6', img: '/uploads/img_1787334002671_273ss.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p7', title: 'Work Poster 7', img: '/uploads/img_1787334017008_lj9un.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p8', title: 'Work Poster 8', img: '/uploads/img_1787334033661_lxfkj.jpg', ratio: '4:5', category: 'Design' },
 ];
 
 const DEFAULT_THUMBNAILS = [
-  { id: 't1', title: 'Widescreen Work 1', img: '/uploads/img_1787335385637_80rgz.jpg', ratio: '16:9', category: 'Video Editing' },
-  { id: 't2', title: 'Widescreen Work 2', img: '/uploads/img_1787335404823_ywbus.jpg', ratio: '16:9', category: 'Video Editing' },
-  { id: 't3', title: 'Widescreen Work 3', img: '/uploads/img_1787335417213_44yop.jpg', ratio: '16:9', category: 'Video Editing' },
-  { id: 't4', title: 'Widescreen Work 4', img: '/uploads/img_1787335427940_6edkw.jpg', ratio: '16:9', category: 'Video Editing' },
-  { id: 't5', title: 'Widescreen Work 5', img: '/uploads/img_1787335466696_5zgbr.jpg', ratio: '16:9', category: 'Video Editing' },
-  { id: 't6', title: 'Widescreen Work 6', img: '/uploads/img_1787335477095_2pm9i.jpg', ratio: '16:9', category: 'Video Editing' },
-  { id: 't7', title: 'Widescreen Work 7', img: '/uploads/img_1787335486546_tep7i.jpg', ratio: '16:9', category: 'Video Editing' },
-  { id: 't8', title: 'Widescreen Work 8', img: '/uploads/img_1787333909377_4uott.png', ratio: '16:9', category: 'Video Editing' },
+  { id: 't1', title: 'Widescreen Work 1', img: '/uploads/img_1787334805662_b1tw7.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't2', title: 'Widescreen Work 2', img: '/uploads/img_1787335251860_szynt.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't3', title: 'Widescreen Work 3', img: '/uploads/img_1787335265295_lkbrl.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't4', title: 'Widescreen Work 4', img: '/uploads/img_1787335277827_huaja.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't5', title: 'Widescreen Work 5', img: '/uploads/img_1787335292227_aqdyj.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't6', title: 'Widescreen Work 6', img: '/uploads/img_1787335301578_kbkua.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't7', title: 'Widescreen Work 7', img: '/uploads/img_1787335313226_ekbud.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't8', title: 'Widescreen Work 8', img: '/uploads/img_1787335327424_4ukqc.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't9', title: 'Widescreen Work 9', img: '/uploads/img_1787335385637_80rgz.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't10', title: 'Widescreen Work 10', img: '/uploads/img_1787335404823_ywbus.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't11', title: 'Widescreen Work 11', img: '/uploads/img_1787335417213_44yop.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't12', title: 'Widescreen Work 12', img: '/uploads/img_1787335427940_6edkw.jpg', ratio: '16:9', category: 'Video Editing' },
 ];
 
 const DEFAULT_BANNERS = [
-  { id: 'b1', title: 'Ultra Wide Banner 1', img: '/uploads/img_1787334002671_273ss.jpg', ratio: 'Banner', category: 'Banner Design' },
-  { id: 'b2', title: 'Ultra Wide Banner 2', img: '/uploads/img_1787334049716_p7n02.jpg', ratio: 'Banner', category: 'Banner Design' },
-  { id: 'b3', title: 'Ultra Wide Banner 3', img: '/uploads/img_1787334805662_b1tw7.jpg', ratio: 'Banner', category: 'Banner Design' },
+  { id: 'b1', title: 'Ultra Wide Banner 1', img: '/uploads/img_1787335466696_5zgbr.jpg', ratio: 'Banner', category: 'Banner Design' },
+  { id: 'b2', title: 'Ultra Wide Banner 2', img: '/uploads/img_1787335477095_2pm9i.jpg', ratio: 'Banner', category: 'Banner Design' },
+  { id: 'b3', title: 'Ultra Wide Banner 3', img: '/uploads/img_1787335486546_tep7i.jpg', ratio: 'Banner', category: 'Banner Design' },
 ];
 
 const Portfolio = () => {
