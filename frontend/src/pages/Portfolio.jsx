@@ -264,7 +264,13 @@ const Portfolio = () => {
               <button
                 onClick={advance45}
                 aria-label="Next Slide"
-                className="absolute right-4 sm:right-12 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full border border-white/20 bg-black/60 hover:bg-lazyAccent/30 hover:border-lazyAccent text-white fl            {visibleSlots.map(({ item, slot, isCenter }, idx) => {
+                className="absolute right-4 sm:right-12 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full border border-white/20 bg-black/60 hover:bg-lazyAccent/30 hover:border-lazyAccent text-white flex items-center justify-center backdrop-blur-md transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:scale-110 active:scale-95 cursor-pointer"
+              >
+                <ChevronRight className="w-6 h-6 text-white" />
+              </button>
+            )}
+
+            {visibleSlots.map(({ item, slot, isCenter }, idx) => {
               if (!item) return null;
               const rawUrl = item.img || item.mediaUrl;
               const mediaImage = getMediaUrl(rawUrl, '/uploads/img_1787335251860_szynt.jpg');
