@@ -94,16 +94,27 @@ const Home = () => {
     loadData();
   }, []);
 
-  /* Strictly filter items meant for the Work Preview section only */
-  const workPreviewPool = previewItems.filter(i => 
-    i.category === 'Work Preview' || 
-    (i.ratio && i.ratio.includes('Work Preview')) ||
-    (i.ratio && i.ratio.includes('Slot'))
-  );
+  /* Strictly assign the exact media items for Work Preview slots */
+  const slot1 = workPreviewPool.find(i => i.img && i.img.includes('vid_') && (i.ratio?.includes('9:16') || i.ratio?.includes('Slot 1'))) || {
+    _id: 'slot-1',
+    ratio: 'Work Preview - Slot 1 (9:16)',
+    img: '/uploads/vid_1787332491700_mygcu.mp4',
+    mediaUrl: '/uploads/vid_1787332491700_mygcu.mp4'
+  };
 
-  const slot1 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 1') || i.ratio.includes('9:16'))) || workPreviewPool.find(i => String(i.title).trim() === '1') || DEFAULT_PREVIEW_ITEMS[0];
-  const slot2 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 2') || i.ratio.includes('16:9'))) || workPreviewPool.find(i => String(i.title).trim() === '2') || DEFAULT_PREVIEW_ITEMS[1];
-  const slot3 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 3') || i.ratio.includes('4:5'))) || workPreviewPool.find(i => String(i.title).trim() === '3') || DEFAULT_PREVIEW_ITEMS[2];
+  const slot2 = workPreviewPool.find(i => i.img && i.img.includes('img_1787333909377')) || {
+    _id: 'slot-2',
+    ratio: 'Work Preview - Slot 2 (16:9)',
+    img: '/uploads/img_1787333909377_4uott.png',
+    mediaUrl: '/uploads/img_1787333909377_4uott.png'
+  };
+
+  const slot3 = workPreviewPool.find(i => i.img && i.img.includes('img_1787335486546')) || {
+    _id: 'slot-3',
+    ratio: 'Work Preview - Slot 3 (4:5)',
+    img: '/uploads/img_1787335486546_tep7i.jpg',
+    mediaUrl: '/uploads/img_1787335486546_tep7i.jpg'
+  };
 
   return (
     <div className="flex flex-col">
