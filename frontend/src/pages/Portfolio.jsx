@@ -22,10 +22,34 @@ const SLOTS_4_5_MOBILE = [
 
 const ROTATION_INTERVAL = 3400; // 3.4 seconds auto-advance
 
+const DEFAULT_POSTS_45 = [
+  { id: 'p1', title: 'Level Up Content', img: '/card_level_up.png', ratio: '4:5', category: 'Design' },
+  { id: 'p2', title: 'Own Your Power', img: '/card_own_power.png', ratio: '4:5', category: 'Design' },
+  { id: 'p3', title: 'Unleash Creativity', img: '/card_unleash.png', ratio: '4:5', category: 'Design' },
+  { id: 'p4', title: 'Build Your Brand', img: '/card_build_brand.png', ratio: '4:5', category: 'Design' },
+  { id: 'p5', title: 'Stay Consistent', img: '/card_stay_consistent.png', ratio: '4:5', category: 'Design' },
+  { id: 'p6', title: 'Break All Rules', img: '/card_break_rules.png', ratio: '4:5', category: 'Design' },
+  { id: 'p7', title: 'No Limits Allowed', img: '/card_no_limits.png', ratio: '4:5', category: 'Design' },
+];
+
+const DEFAULT_THUMBNAILS = [
+  { id: 't1', title: 'Widescreen Edit 1', img: '/card_own_power.png', ratio: '16:9', category: 'Video Editing' },
+  { id: 't2', title: 'Widescreen Edit 2', img: '/card_level_up.png', ratio: '16:9', category: 'Video Editing' },
+  { id: 't3', title: 'Widescreen Edit 3', img: '/card_unleash.png', ratio: '16:9', category: 'Video Editing' },
+  { id: 't4', title: 'Widescreen Edit 4', img: '/card_build_brand.png', ratio: '16:9', category: 'Video Editing' },
+  { id: 't5', title: 'Widescreen Edit 5', img: '/card_stay_consistent.png', ratio: '16:9', category: 'Video Editing' },
+  { id: 't6', title: 'Widescreen Edit 6', img: '/card_break_rules.png', ratio: '16:9', category: 'Video Editing' },
+];
+
+const DEFAULT_BANNERS = [
+  { id: 'b1', title: 'Ultra Wide Banner 1', img: '/card_own_power.png', ratio: 'Banner', category: 'Banner Design' },
+  { id: 'b2', title: 'Ultra Wide Banner 2', img: '/card_level_up.png', ratio: 'Banner', category: 'Banner Design' },
+];
+
 const Portfolio = () => {
-  const [posts45, setPosts45]               = useState([]);
-  const [thumbnails, setThumbnails]         = useState([]);
-  const [banners, setBanners]               = useState([]);
+  const [posts45, setPosts45]               = useState(DEFAULT_POSTS_45);
+  const [thumbnails, setThumbnails]         = useState(DEFAULT_THUMBNAILS);
+  const [banners, setBanners]               = useState(DEFAULT_BANNERS);
 
   const [isLoading, setIsLoading]           = useState(true);
   const [active45Idx, setActive45Idx]       = useState(0);
@@ -43,27 +67,32 @@ const Portfolio = () => {
     });
   };
 
-  /* Fetch live portfolio items 100% from Backend Database API */
+  /* Fetch live portfolio items 100% from Backend Database API with fallbacks */
   const loadPortfolioData = useCallback(async () => {
     try {
       setIsLoading(true);
       const r = await apiRequest('GET', '/portfolio');
-      if (r.data && Array.isArray(r.data)) {
+      if (r.data && Array.isArray(r.data) && r.data.length > 0) {
         const p45 = r.data.filter(i => i.ratio === '4:5' || !i.ratio);
         const t169 = r.data.filter(i => i.ratio === '16:9');
         const ban = r.data.filter(i => i.ratio === 'Banner' || i.ratio === '6:1');
 
-        setPosts45(p45);
-        setThumbnails(t169);
-        setBanners(ban);
+        setPosts45(p45.length > 0 ? p45 : DEFAULT_POSTS_45);
+        setThumbnails(t169.length > 0 ? t169 : DEFAULT_THUMBNAILS);
+        setBanners(ban.length > 0 ? ban : DEFAULT_BANNERS);
 
-        // Parallel preload all images in browser cache
         preloadImages(r.data);
+      } else {
+        setPosts45(DEFAULT_POSTS_45);
+        setThumbnails(DEFAULT_THUMBNAILS);
+        setBanners(DEFAULT_BANNERS);
       }
     } catch (e) {
       console.error('Error loading portfolio from Database:', e);
+      setPosts45(DEFAULT_POSTS_45);
+      setThumbnails(DEFAULT_THUMBNAILS);
+      setBanners(DEFAULT_BANNERS);
     } finally {
-      // Smooth subtle delay to allow preloader to finish
       setTimeout(() => {
         setIsLoading(false);
       }, 450);
