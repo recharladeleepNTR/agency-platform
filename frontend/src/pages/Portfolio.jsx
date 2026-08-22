@@ -22,28 +22,40 @@ const SLOTS_4_5_MOBILE = [
 
 const ROTATION_INTERVAL = 3400; // 3.4 seconds auto-advance
 
+const getMediaUrl = (url, fallback = '/card_own_power.png') => {
+  if (!url || typeof url !== 'string') return fallback;
+  if (url.includes('/uploads/')) {
+    const parts = url.split('/uploads/');
+    return `/uploads/${parts[1]}`;
+  }
+  return url;
+};
+
 const DEFAULT_POSTS_45 = [
-  { id: 'p1', title: 'Level Up Content', img: '/card_level_up.png', ratio: '4:5', category: 'Design' },
-  { id: 'p2', title: 'Own Your Power', img: '/card_own_power.png', ratio: '4:5', category: 'Design' },
-  { id: 'p3', title: 'Unleash Creativity', img: '/card_unleash.png', ratio: '4:5', category: 'Design' },
-  { id: 'p4', title: 'Build Your Brand', img: '/card_build_brand.png', ratio: '4:5', category: 'Design' },
-  { id: 'p5', title: 'Stay Consistent', img: '/card_stay_consistent.png', ratio: '4:5', category: 'Design' },
-  { id: 'p6', title: 'Break All Rules', img: '/card_break_rules.png', ratio: '4:5', category: 'Design' },
-  { id: 'p7', title: 'No Limits Allowed', img: '/card_no_limits.png', ratio: '4:5', category: 'Design' },
+  { id: 'p1', title: 'Work Poster 1', img: '/uploads/img_1787335251860_szynt.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p2', title: 'Work Poster 2', img: '/uploads/img_1787335265295_lkbrl.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p3', title: 'Work Poster 3', img: '/uploads/img_1787335277827_huaja.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p4', title: 'Work Poster 4', img: '/uploads/img_1787335292227_aqdyj.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p5', title: 'Work Poster 5', img: '/uploads/img_1787335301578_kbkua.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p6', title: 'Work Poster 6', img: '/uploads/img_1787335313226_ekbud.jpg', ratio: '4:5', category: 'Design' },
+  { id: 'p7', title: 'Work Poster 7', img: '/uploads/img_1787335327424_4ukqc.jpg', ratio: '4:5', category: 'Design' },
 ];
 
 const DEFAULT_THUMBNAILS = [
-  { id: 't1', title: 'Widescreen Edit 1', img: '/card_own_power.png', ratio: '16:9', category: 'Video Editing' },
-  { id: 't2', title: 'Widescreen Edit 2', img: '/card_level_up.png', ratio: '16:9', category: 'Video Editing' },
-  { id: 't3', title: 'Widescreen Edit 3', img: '/card_unleash.png', ratio: '16:9', category: 'Video Editing' },
-  { id: 't4', title: 'Widescreen Edit 4', img: '/card_build_brand.png', ratio: '16:9', category: 'Video Editing' },
-  { id: 't5', title: 'Widescreen Edit 5', img: '/card_stay_consistent.png', ratio: '16:9', category: 'Video Editing' },
-  { id: 't6', title: 'Widescreen Edit 6', img: '/card_break_rules.png', ratio: '16:9', category: 'Video Editing' },
+  { id: 't1', title: 'Widescreen Work 1', img: '/uploads/img_1787335385637_80rgz.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't2', title: 'Widescreen Work 2', img: '/uploads/img_1787335404823_ywbus.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't3', title: 'Widescreen Work 3', img: '/uploads/img_1787335417213_44yop.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't4', title: 'Widescreen Work 4', img: '/uploads/img_1787335427940_6edkw.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't5', title: 'Widescreen Work 5', img: '/uploads/img_1787335466696_5zgbr.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't6', title: 'Widescreen Work 6', img: '/uploads/img_1787335477095_2pm9i.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't7', title: 'Widescreen Work 7', img: '/uploads/img_1787335486546_tep7i.jpg', ratio: '16:9', category: 'Video Editing' },
+  { id: 't8', title: 'Widescreen Work 8', img: '/uploads/img_1787333909377_4uott.png', ratio: '16:9', category: 'Video Editing' },
 ];
 
 const DEFAULT_BANNERS = [
-  { id: 'b1', title: 'Ultra Wide Banner 1', img: '/card_own_power.png', ratio: 'Banner', category: 'Banner Design' },
-  { id: 'b2', title: 'Ultra Wide Banner 2', img: '/card_level_up.png', ratio: 'Banner', category: 'Banner Design' },
+  { id: 'b1', title: 'Ultra Wide Banner 1', img: '/uploads/img_1787334002671_273ss.jpg', ratio: 'Banner', category: 'Banner Design' },
+  { id: 'b2', title: 'Ultra Wide Banner 2', img: '/uploads/img_1787334049716_p7n02.jpg', ratio: 'Banner', category: 'Banner Design' },
+  { id: 'b3', title: 'Ultra Wide Banner 3', img: '/uploads/img_1787334805662_b1tw7.jpg', ratio: 'Banner', category: 'Banner Design' },
 ];
 
 const Portfolio = () => {
@@ -252,18 +264,10 @@ const Portfolio = () => {
               <button
                 onClick={advance45}
                 aria-label="Next Slide"
-                className="absolute right-4 sm:right-12 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full border border-white/20 bg-black/60 hover:bg-lazyAccent/30 hover:border-lazyAccent text-white flex items-center justify-center backdrop-blur-md transition-all duration-300 shadow-[0_0_20px_rgba(0,0,0,0.5)] hover:scale-110 active:scale-95 cursor-pointer"
-              >
-                <ChevronRight className="w-6 h-6 text-white" />
-              </button>
-            )}
-
-            {visibleSlots.map(({ item, slot, isCenter }, idx) => {
+                className="absolute right-4 sm:right-12 top-1/2 -translate-y-1/2 z-40 w-12 h-12 rounded-full border border-white/20 bg-black/60 hover:bg-lazyAccent/30 hover:border-lazyAccent text-white fl            {visibleSlots.map(({ item, slot, isCenter }, idx) => {
               if (!item) return null;
               const rawUrl = item.img || item.mediaUrl;
-              const mediaImage = (!rawUrl || rawUrl.includes('localhost') || rawUrl.startsWith('/uploads/'))
-                ? '/card_level_up.png'
-                : rawUrl;
+              const mediaImage = getMediaUrl(rawUrl, '/uploads/img_1787335251860_szynt.jpg');
               const itemKey = item._id || item.id || `post-${idx}`;
 
               return (
@@ -303,7 +307,7 @@ const Portfolio = () => {
                     alt="Client Work"
                     onError={(e) => {
                       e.target.onerror = null;
-                      e.target.src = '/card_level_up.png';
+                      e.target.src = '/uploads/img_1787335251860_szynt.jpg';
                     }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
@@ -352,9 +356,7 @@ const Portfolio = () => {
               {row1Items.map((item, idx) => {
                 if (!item) return null;
                 const rawUrl = item.img || item.mediaUrl;
-                const mediaImg = (!rawUrl || rawUrl.includes('localhost') || rawUrl.startsWith('/uploads/'))
-                  ? '/card_own_power.png'
-                  : rawUrl;
+                const mediaImg = getMediaUrl(rawUrl, '/uploads/img_1787335385637_80rgz.jpg');
                 return (
                   <div
                     key={`r1-${idx}`}
@@ -365,7 +367,7 @@ const Portfolio = () => {
                       alt="Client Work"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = '/card_own_power.png';
+                        e.target.src = '/uploads/img_1787335385637_80rgz.jpg';
                       }}
                       className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
                     />
@@ -393,9 +395,7 @@ const Portfolio = () => {
                 {row2Items.map((item, idx) => {
                   if (!item) return null;
                   const rawUrl = item.img || item.mediaUrl;
-                  const mediaImg = (!rawUrl || rawUrl.includes('localhost') || rawUrl.startsWith('/uploads/'))
-                    ? '/card_unleash.png'
-                    : rawUrl;
+                  const mediaImg = getMediaUrl(rawUrl, '/uploads/img_1787335404823_ywbus.jpg');
                   return (
                     <div
                       key={`r2-${idx}`}
@@ -406,7 +406,7 @@ const Portfolio = () => {
                         alt="Client Work"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = '/card_unleash.png';
+                          e.target.src = '/uploads/img_1787335404823_ywbus.jpg';
                         }}
                         className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
                       />
@@ -427,10 +427,10 @@ const Portfolio = () => {
           <div className="space-y-8 max-w-6xl mx-auto">
             {banners.map((b, idx) => {
               if (!b) return null;
+            {banners.map((b, idx) => {
+              if (!b) return null;
               const rawUrl = b.img || b.mediaUrl;
-              const bannerImg = (!rawUrl || rawUrl.includes('localhost') || rawUrl.startsWith('/uploads/'))
-                ? '/card_build_brand.png'
-                : rawUrl;
+              const bannerImg = getMediaUrl(rawUrl, '/uploads/img_1787334002671_273ss.jpg');
               const bKey = b._id || b.id || `banner-${idx}`;
 
               return (
@@ -448,7 +448,7 @@ const Portfolio = () => {
                       alt="Client Work"
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = '/card_build_brand.png';
+                        e.target.src = '/uploads/img_1787334002671_273ss.jpg';
                       }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
