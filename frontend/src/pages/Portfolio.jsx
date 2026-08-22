@@ -260,7 +260,10 @@ const Portfolio = () => {
 
             {visibleSlots.map(({ item, slot, isCenter }, idx) => {
               if (!item) return null;
-              const mediaImage = item.img || item.mediaUrl || '/card_own_power.png';
+              const rawUrl = item.img || item.mediaUrl;
+              const mediaImage = (!rawUrl || rawUrl.includes('localhost') || rawUrl.startsWith('/uploads/'))
+                ? '/card_level_up.png'
+                : rawUrl;
               const itemKey = item._id || item.id || `post-${idx}`;
 
               return (
@@ -298,6 +301,10 @@ const Portfolio = () => {
                   <img
                     src={mediaImage}
                     alt="Client Work"
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = '/card_level_up.png';
+                    }}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                   />
                 </motion.div>
@@ -344,7 +351,10 @@ const Portfolio = () => {
             >
               {row1Items.map((item, idx) => {
                 if (!item) return null;
-                const mediaImg = item.img || item.mediaUrl || '/card_no_limits.png';
+                const rawUrl = item.img || item.mediaUrl;
+                const mediaImg = (!rawUrl || rawUrl.includes('localhost') || rawUrl.startsWith('/uploads/'))
+                  ? '/card_own_power.png'
+                  : rawUrl;
                 return (
                   <div
                     key={`r1-${idx}`}
@@ -353,6 +363,10 @@ const Portfolio = () => {
                     <img
                       src={mediaImg}
                       alt="Client Work"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/card_own_power.png';
+                      }}
                       className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
                     />
                   </div>
@@ -378,7 +392,10 @@ const Portfolio = () => {
               >
                 {row2Items.map((item, idx) => {
                   if (!item) return null;
-                  const mediaImg = item.img || item.mediaUrl || '/card_no_limits.png';
+                  const rawUrl = item.img || item.mediaUrl;
+                  const mediaImg = (!rawUrl || rawUrl.includes('localhost') || rawUrl.startsWith('/uploads/'))
+                    ? '/card_unleash.png'
+                    : rawUrl;
                   return (
                     <div
                       key={`r2-${idx}`}
@@ -387,6 +404,10 @@ const Portfolio = () => {
                       <img
                         src={mediaImg}
                         alt="Client Work"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = '/card_unleash.png';
+                        }}
                         className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
                       />
                     </div>
@@ -406,7 +427,10 @@ const Portfolio = () => {
           <div className="space-y-8 max-w-6xl mx-auto">
             {banners.map((b, idx) => {
               if (!b) return null;
-              const bannerImg = b.img || b.mediaUrl || '/card_unleash.png';
+              const rawUrl = b.img || b.mediaUrl;
+              const bannerImg = (!rawUrl || rawUrl.includes('localhost') || rawUrl.startsWith('/uploads/'))
+                ? '/card_build_brand.png'
+                : rawUrl;
               const bKey = b._id || b.id || `banner-${idx}`;
 
               return (
@@ -422,6 +446,10 @@ const Portfolio = () => {
                     <img
                       src={bannerImg}
                       alt="Client Work"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/card_build_brand.png';
+                      }}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                     />
                   </div>
