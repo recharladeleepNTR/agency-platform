@@ -41,8 +41,38 @@ const whoWeWorkWith = [
 ];
 
 /* ─────────────── Component ─────────────── */
+const DEFAULT_PREVIEW_ITEMS = [
+  {
+    _id: 'slot-1',
+    id: 'slot-1',
+    title: '1',
+    ratio: 'Work Preview - Slot 1 (9:16)',
+    category: 'Work Preview',
+    img: '/uploads/vid_1787332491700_mygcu.mp4',
+    mediaUrl: '/uploads/vid_1787332491700_mygcu.mp4'
+  },
+  {
+    _id: 'slot-2',
+    id: 'slot-2',
+    title: '2',
+    ratio: 'Work Preview - Slot 2 (16:9)',
+    category: 'Work Preview',
+    img: '/uploads/img_1787333909377_4uott.png',
+    mediaUrl: '/uploads/img_1787333909377_4uott.png'
+  },
+  {
+    _id: 'slot-3',
+    id: 'slot-3',
+    title: '3',
+    ratio: 'Work Preview - Slot 3 (4:5)',
+    category: 'Work Preview',
+    img: '/uploads/img_1787335486546_tep7i.jpg',
+    mediaUrl: '/uploads/img_1787335486546_tep7i.jpg'
+  }
+];
+
 const Home = () => {
-  const [previewItems, setPreviewItems]   = useState([]);
+  const [previewItems, setPreviewItems]   = useState(DEFAULT_PREVIEW_ITEMS);
   const [selectedMedia, setSelectedMedia] = useState(null);
   const [isMuted, setIsMuted]             = useState(true);
 
@@ -51,11 +81,14 @@ const Home = () => {
     const loadData = async () => {
       try {
         const res = await apiRequest('GET', '/portfolio');
-        if (res.data && Array.isArray(res.data)) {
+        if (res.data && Array.isArray(res.data) && res.data.length > 0) {
           setPreviewItems(res.data);
+        } else {
+          setPreviewItems(DEFAULT_PREVIEW_ITEMS);
         }
       } catch (e) {
         console.error('Error fetching Work Preview from DB:', e);
+        setPreviewItems(DEFAULT_PREVIEW_ITEMS);
       }
     };
     loadData();
@@ -68,9 +101,9 @@ const Home = () => {
     (i.ratio && i.ratio.includes('Slot'))
   );
 
-  const slot1 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 1') || i.ratio.includes('9:16'))) || workPreviewPool.find(i => String(i.title).trim() === '1') || workPreviewPool[0];
-  const slot2 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 2') || i.ratio.includes('16:9'))) || workPreviewPool.find(i => String(i.title).trim() === '2') || workPreviewPool[1];
-  const slot3 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 3') || i.ratio.includes('4:5'))) || workPreviewPool.find(i => String(i.title).trim() === '3') || workPreviewPool[2];
+  const slot1 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 1') || i.ratio.includes('9:16'))) || workPreviewPool.find(i => String(i.title).trim() === '1') || DEFAULT_PREVIEW_ITEMS[0];
+  const slot2 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 2') || i.ratio.includes('16:9'))) || workPreviewPool.find(i => String(i.title).trim() === '2') || DEFAULT_PREVIEW_ITEMS[1];
+  const slot3 = workPreviewPool.find(i => i.ratio && (i.ratio.includes('Slot 3') || i.ratio.includes('4:5'))) || workPreviewPool.find(i => String(i.title).trim() === '3') || DEFAULT_PREVIEW_ITEMS[2];
 
   return (
     <div className="flex flex-col">
@@ -358,18 +391,16 @@ const Home = () => {
               {slot1 && (slot1.img || slot1.mediaUrl) ? (
                 isVideoMedia(slot1.img || slot1.mediaUrl) ? (
                   <video
+                    src={getMediaUrl(slot1.img || slot1.mediaUrl)}
                     ref={(el) => {
                       if (el) {
                         el.muted = true;
                         el.play().catch(() => {});
                       }
                     }}
-                    autoPlay loop playsInline muted
+                    autoPlay loop playsInline webkit-playsinline="true" muted preload="auto"
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  >
-                    <source src={getMediaUrl(slot1.img || slot1.mediaUrl)} type="video/mp4" />
-                    <source src={getMediaUrl(slot1.img || slot1.mediaUrl)} type="video/webm" />
-                  </video>
+                  />
                 ) : (
                   <img
                     src={getMediaUrl(slot1.img || slot1.mediaUrl)}
@@ -395,18 +426,16 @@ const Home = () => {
               {slot2 && (slot2.img || slot2.mediaUrl) ? (
                 isVideoMedia(slot2.img || slot2.mediaUrl) ? (
                   <video
+                    src={getMediaUrl(slot2.img || slot2.mediaUrl)}
                     ref={(el) => {
                       if (el) {
                         el.muted = true;
                         el.play().catch(() => {});
                       }
                     }}
-                    autoPlay loop playsInline muted
+                    autoPlay loop playsInline webkit-playsinline="true" muted preload="auto"
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  >
-                    <source src={getMediaUrl(slot2.img || slot2.mediaUrl)} type="video/mp4" />
-                    <source src={getMediaUrl(slot2.img || slot2.mediaUrl)} type="video/webm" />
-                  </video>
+                  />
                 ) : (
                   <img
                     src={getMediaUrl(slot2.img || slot2.mediaUrl)}
@@ -432,18 +461,16 @@ const Home = () => {
               {slot3 && (slot3.img || slot3.mediaUrl) ? (
                 isVideoMedia(slot3.img || slot3.mediaUrl) ? (
                   <video
+                    src={getMediaUrl(slot3.img || slot3.mediaUrl)}
                     ref={(el) => {
                       if (el) {
                         el.muted = true;
                         el.play().catch(() => {});
                       }
                     }}
-                    autoPlay loop playsInline muted
+                    autoPlay loop playsInline webkit-playsinline="true" muted preload="auto"
                     className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  >
-                    <source src={getMediaUrl(slot3.img || slot3.mediaUrl)} type="video/mp4" />
-                    <source src={getMediaUrl(slot3.img || slot3.mediaUrl)} type="video/webm" />
-                  </video>
+                  />
                 ) : (
                   <img
                     src={getMediaUrl(slot3.img || slot3.mediaUrl)}
