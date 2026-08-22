@@ -48,8 +48,8 @@ const DEFAULT_PREVIEW_ITEMS = [
     title: '1',
     ratio: 'Work Preview - Slot 1 (9:16)',
     category: 'Work Preview',
-    img: '/card_own_power.png',
-    mediaUrl: '/card_own_power.png'
+    img: '/uploads/vid_1787332204764_te5no.mp4',
+    mediaUrl: '/uploads/vid_1787332204764_te5no.mp4'
   },
   {
     _id: 'slot-2',
@@ -94,10 +94,10 @@ const Home = () => {
     loadData();
   }, []);
 
-  /* Directly set exact matching media for each slot */
-  const slot1 = DEFAULT_PREVIEW_ITEMS[0]; // 9:16 Vertical Card
-  const slot2 = DEFAULT_PREVIEW_ITEMS[1]; // 16:9 Widescreen Video Card (vid_1787332491700_mygcu.mp4)
-  const slot3 = DEFAULT_PREVIEW_ITEMS[2]; // 4:5 Portrait Post Card (img_1787333909377_4uott.png)
+  /* Filter Work Preview items dynamically or default to exact slots */
+  const slot1 = (previewItems || []).find(i => i.ratio?.includes('Slot 1') || i.title === '1') || DEFAULT_PREVIEW_ITEMS[0];
+  const slot2 = (previewItems || []).find(i => i.ratio?.includes('Slot 2') || i.title === '2') || DEFAULT_PREVIEW_ITEMS[1];
+  const slot3 = (previewItems || []).find(i => i.ratio?.includes('Slot 3') || i.title === '3') || DEFAULT_PREVIEW_ITEMS[2];
 
   return (
     <div className="flex flex-col">
