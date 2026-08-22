@@ -433,8 +433,6 @@ const Portfolio = () => {
           <div className="space-y-8 max-w-6xl mx-auto">
             {banners.map((b, idx) => {
               if (!b) return null;
-            {banners.map((b, idx) => {
-              if (!b) return null;
               const rawUrl = b.img || b.mediaUrl;
               const bannerImg = getMediaUrl(rawUrl, '/uploads/img_1787334002671_273ss.jpg');
               const bKey = b._id || b.id || `banner-${idx}`;
