@@ -1,0 +1,152 @@
+const asyncHandler = require('express-async-handler');
+const fs = require('fs');
+const path = require('path');
+const {
+  getAllItems,
+  getItemById,
+  insertItem,
+  deleteItem,
+  clearAllItems,
+} = require('../database/sqlite');
+
+// Helper to save base64 image & video strings as physical files in /uploads
+const saveBase64ToFile = (base64Str) => {
+  if (!base64Str || typeof base64Str !== 'string') return '/card_own_power.png';
+  if (base64Str.startsWith('blob:')) return '/card_own_power.png';
+  if (!base64Str.startsWith('data:')) {
+    return base64Str;
+  }
+  try {
+    const matches = base64Str.match(/^data:(image|video)\/([^;]+);base64,(.+)$/);
+    if (!matches || matches.length !== 4) return base64Str;
+
+    const mediaType = matches[1];
+    let rawSubtype = matches[2].toLowerCase();
+
+    let ext = 'mp4';
+    if (mediaType === 'image') {
+      ext = rawSubtype === 'jpeg' ? 'jpg' : rawSubtype.replace(/[^a-z0-9]/g, '');
+    } else {
+      if (rawSubtype.includes('quicktime') || rawSubtype.includes('mov')) ext = 'mov';
+      else if (rawSubtype.includes('webm')) ext = 'webm';
+      else ext = 'mp4';
+    }
+
+    const dataBuffer = Buffer.from(matches[3], 'base64');
+    const prefix = mediaType === 'video' ? 'vid' : 'img';
+    const filename = `${prefix}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
+    const uploadsDir = path.join(__dirname, '..', 'uploads');
+
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const filepath = path.join(uploadsDir, filename);
+    fs.writeFileSync(filepath, dataBuffer);
+    console.log(`✅ Saved ${mediaType} file (${(dataBuffer.length / 1024 / 1024).toFixed(2)} MB) to /uploads/${filename}`);
+    return `/uploads/${filename}`;
+  } catch (err) {
+    console.error('Error saving base64 to file:', err.message);
+    return base64Str;
+  }
+};
+
+// @desc    Get all portfolio items
+// @route   GET /api/portfolio
+// @access  Public
+const getPortfolioItems = asyncHandler(async (req, res) => {
+  const items = getAllItems();
+  res.json(items);
+});
+
+// @desc    Create new portfolio item
+// @route   POST /api/portfolio
+// @access  Public / Private
+const uploadPortfolioItem = asyncHandler(async (req, res) => {
+  const { title, subtitle, ratio, category, tag, isExclusive, img, mediaUrl } = req.body;
+  
+  let mediaPath = null;
+  if (req.file) {
+    mediaPath = `/uploads/${req.file.filename}`;
+    console.log(`🎬 Multer saved binary file to /uploads/${req.file.filename} (${(req.file.size / 1024 / 1024).toFixed(2)} MB)`);
+  } else if (img || mediaUrl) {
+    mediaPath = saveBase64ToFile(img || mediaUrl);
+  } else {
+    mediaPath = '/card_own_power.png';
+  }
+
+  const newItemData = {
+    _id: 'p-' + Date.now(),
+    id: 'p-' + Date.now(),
+    title: title || 'Work Preview Item',
+    subtitle: subtitle || '',
+    ratio: ratio || 'Work Preview - Slot 1 (9:16)',
+    category: category || 'Work Preview',
+    tag: tag || category || 'Work Preview',
+    isExclusive: isExclusive === 'true' || isExclusive === true,
+    img: mediaPath,
+    mediaUrl: mediaPath,
+  };
+
+  const saved = insertItem(newItemData);
+  res.status(201).json(saved);
+});
+
+// @desc    Update existing portfolio item
+// @route   PUT /api/portfolio/:id
+// @access  Public / Private
+const updatePortfolioItem = asyncHandler(async (req, res) => {
+  const { title, subtitle, ratio, category, tag, isExclusive, img, mediaUrl } = req.body;
+  const targetId = req.params.id;
+
+  let mediaPath = null;
+  if (req.file) {
+    mediaPath = `/uploads/${req.file.filename}`;
+    console.log(`🎬 Multer replaced binary file to /uploads/${req.file.filename} (${(req.file.size / 1024 / 1024).toFixed(2)} MB)`);
+  } else if (img || mediaUrl) {
+    mediaPath = saveBase64ToFile(img || mediaUrl);
+  }
+
+  let existingItem = getItemById(targetId);
+
+  const updatedFields = {
+    _id: targetId,
+    id: targetId,
+    title: title || (existingItem ? existingItem.title : 'Work Preview Item'),
+    subtitle: subtitle !== undefined ? subtitle : (existingItem ? existingItem.subtitle : ''),
+    ratio: ratio || (existingItem ? existingItem.ratio : 'Work Preview - Slot 1 (9:16)'),
+    category: category || (existingItem ? existingItem.category : 'Work Preview'),
+    tag: tag || category || (existingItem ? existingItem.tag : 'Work Preview'),
+    isExclusive: isExclusive !== undefined ? (isExclusive === 'true' || isExclusive === true) : (existingItem ? existingItem.isExclusive : false),
+    img: mediaPath || (existingItem ? (existingItem.img || existingItem.mediaUrl) : '/card_own_power.png'),
+    mediaUrl: mediaPath || (existingItem ? (existingItem.mediaUrl || existingItem.img) : '/card_own_power.png'),
+  };
+
+  const saved = insertItem(updatedFields);
+  res.json(saved);
+});
+
+// @desc    Delete portfolio item
+// @route   DELETE /api/portfolio/:id
+// @access  Public / Private
+const deletePortfolioItem = asyncHandler(async (req, res) => {
+  const targetId = req.params.id;
+  deleteItem(targetId);
+  res.json({ message: 'Portfolio item removed', id: targetId });
+});
+
+// @desc    Clear all portfolio items completely
+// @route   DELETE /api/portfolio
+// @access  Public / Private
+const clearAllPortfolioItems = asyncHandler(async (req, res) => {
+  clearAllItems();
+  res.json({ message: 'Portfolio reset to default SQLite items' });
+});
+
+module.exports = {
+  getPortfolioItems,
+  uploadPortfolioItem,
+  updatePortfolioItem,
+  deletePortfolioItem,
+  clearAllPortfolioItems,
+};

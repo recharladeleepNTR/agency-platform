@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+backend/node_modules/
+
+# Production build
+dist/
+frontend/dist/
+
+# Environment variables & secrets
+.env
+backend/.env
+
+# System / OS
+.DS_Store
+*.log
+.vscode/
+
+# Temp upload files
+backend/uploads/*
+!backend/uploads/.gitkeep
