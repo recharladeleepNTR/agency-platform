@@ -2,13 +2,14 @@ import axios from 'axios';
 
 export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
 
+const isLocal = typeof window !== 'undefined' && (
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1'
+);
+
 const API_BASE_URLS = [
   BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}/api`,
-  'http://172.16.15.66:5001/api',
-  'http://localhost:5001/api',
-  'http://127.0.0.1:5001/api',
-  'http://localhost:5000/api',
-  'http://127.0.0.1:5000/api',
+  ...(isLocal ? ['http://localhost:5001/api', 'http://127.0.0.1:5001/api'] : [])
 ].filter(Boolean);
 
 export const apiRequest = async (method, path, data = null, config = {}) => {
