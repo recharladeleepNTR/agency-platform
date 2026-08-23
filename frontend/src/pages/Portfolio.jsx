@@ -72,18 +72,6 @@ const Portfolio = () => {
   const [active45Idx, setActive45Idx]       = useState(0);
   const [isPaused45, setIsPaused45]         = useState(false);
 
-  /* Preload images in parallel for instant zero-lag rendering */
-  const preloadImages = (items) => {
-    if (!items || !Array.isArray(items)) return;
-    items.forEach(item => {
-      const src = item?.img || item?.mediaUrl;
-      if (src && typeof src === 'string') {
-        const img = new Image();
-        img.src = src;
-      }
-    });
-  };
-
   /* Fetch live portfolio items 100% from Backend Database API with fallbacks */
   const loadPortfolioData = useCallback(async () => {
     try {
@@ -97,8 +85,6 @@ const Portfolio = () => {
         setPosts45(p45.length > 0 ? p45 : DEFAULT_POSTS_45);
         setThumbnails(t169.length > 0 ? t169 : DEFAULT_THUMBNAILS);
         setBanners(ban.length > 0 ? ban : DEFAULT_BANNERS);
-
-        preloadImages(r.data);
       } else {
         setPosts45(DEFAULT_POSTS_45);
         setThumbnails(DEFAULT_THUMBNAILS);
@@ -110,9 +96,7 @@ const Portfolio = () => {
       setThumbnails(DEFAULT_THUMBNAILS);
       setBanners(DEFAULT_BANNERS);
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 450);
+      setIsLoading(false);
     }
   }, []);
 
@@ -174,13 +158,9 @@ const Portfolio = () => {
   const row1Slice = rawThumbnails.slice(0, 6);
   const row2Slice = rawThumbnails.length > 6 ? rawThumbnails.slice(6) : rawThumbnails.slice(0, 6);
 
-  // Repeat for continuous seamless infinite marquee looping
-  const row1Items = row1Slice.length > 0 
-    ? [...row1Slice, ...row1Slice, ...row1Slice, ...row1Slice] 
-    : [];
-  const row2Items = row2Slice.length > 0 
-    ? [...row2Slice, ...row2Slice, ...row2Slice, ...row2Slice] 
-    : [];
+  // 2x duplication is 100% seamless for GPU infinite CSS marquee
+  const row1Items = row1Slice.length > 0 ? [...row1Slice, ...row1Slice] : [];
+  const row2Items = row2Slice.length > 0 ? [...row2Slice, ...row2Slice] : [];
 
   /* ── GREAT AGENCY LOADING ANIMATION ── */
   if (isLoading) {
@@ -316,6 +296,8 @@ const Portfolio = () => {
                   <img
                     src={mediaImage}
                     alt="Client Work"
+                    loading="lazy"
+                    decoding="async"
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = '/uploads/img_1787335251860_szynt.jpg';
@@ -346,7 +328,7 @@ const Portfolio = () => {
       )}
 
       {/* ═════════════════════════════════════════════════════════════════
-          SECTION 2: PURE 16:9 WORK DUAL INFINITE MARQUEES
+          SECTION 2: PURE 16:9 WORK DUAL GPU-ACCELERATED MARQUEES
           ═════════════════════════════════════════════════════════════════ */}
       {row1Items.length > 0 && (
         <section className="relative z-10 py-12">
@@ -355,15 +337,7 @@ const Portfolio = () => {
             <div className="absolute left-0 top-0 bottom-0 w-28 bg-gradient-to-r from-[#07000e] to-transparent z-20 pointer-events-none" />
             <div className="absolute right-0 top-0 bottom-0 w-28 bg-gradient-to-l from-[#07000e] to-transparent z-20 pointer-events-none" />
 
-            <motion.div
-              className="flex gap-6 w-max"
-              animate={{ x: ['-50%', '0%'] }}
-              transition={{
-                repeat: Infinity,
-                ease: 'linear',
-                duration: 85,
-              }}
-            >
+            <div className="flex gap-6 w-max animate-marquee-left">
               {row1Items.map((item, idx) => {
                 if (!item) return null;
                 const rawUrl = item.img || item.mediaUrl;
@@ -376,6 +350,8 @@ const Portfolio = () => {
                     <img
                       src={mediaImg}
                       alt="Client Work"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/uploads/img_1787335385637_80rgz.jpg';
@@ -385,7 +361,7 @@ const Portfolio = () => {
                   </div>
                 );
               })}
-            </motion.div>
+            </div>
           </div>
 
           {/* MARQUEE ROW 2: RIGHT TO LEFT */}
@@ -394,15 +370,7 @@ const Portfolio = () => {
               <div className="absolute left-0 top-0 bottom-0 w-28 bg-gradient-to-r from-[#07000e] to-transparent z-20 pointer-events-none" />
               <div className="absolute right-0 top-0 bottom-0 w-28 bg-gradient-to-l from-[#07000e] to-transparent z-20 pointer-events-none" />
 
-              <motion.div
-                className="flex gap-6 w-max"
-                animate={{ x: ['0%', '-50%'] }}
-                transition={{
-                  repeat: Infinity,
-                  ease: 'linear',
-                  duration: 85,
-                }}
-              >
+              <div className="flex gap-6 w-max animate-marquee-right">
                 {row2Items.map((item, idx) => {
                   if (!item) return null;
                   const rawUrl = item.img || item.mediaUrl;
@@ -415,6 +383,8 @@ const Portfolio = () => {
                       <img
                         src={mediaImg}
                         alt="Client Work"
+                        loading="lazy"
+                        decoding="async"
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = '/uploads/img_1787335404823_ywbus.jpg';
@@ -424,7 +394,7 @@ const Portfolio = () => {
                     </div>
                   );
                 })}
-              </motion.div>
+              </div>
             </div>
           )}
         </section>
@@ -455,6 +425,8 @@ const Portfolio = () => {
                     <img
                       src={bannerImg}
                       alt="Client Work"
+                      loading="lazy"
+                      decoding="async"
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/uploads/img_1787334002671_273ss.jpg';
