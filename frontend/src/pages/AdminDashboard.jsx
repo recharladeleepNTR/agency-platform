@@ -5,7 +5,6 @@ import {
   Trash2, Upload, Star, Plus, RefreshCw, Eye
 } from 'lucide-react';
 import { apiRequest, getMediaUrl, isVideoMedia } from '../api/client';
-import defaultInquiries from '../data/inquiries.json';
 
 const inputCls = 'w-full bg-[#180926] border-2 border-lazyAccent/35 text-white font-medium rounded-xl px-4 py-3 text-sm outline-none focus:border-lazyAccent focus:bg-[#210d33] transition-all placeholder:text-white/40 shadow-inner';
 const btnCls  = 'px-5 py-2.5 rounded-xl font-bold text-sm transition-all';
@@ -154,20 +153,14 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteInquiry = async (id) => {
-    const updatedList = inquiries.filter(i => (i._id || i.id) !== id);
-    setInquiries(updatedList);
-
     try {
-      const stored = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
-      const filtered = stored.filter(i => (i._id || i.id) !== id);
-      localStorage.setItem('LAZYDITION_SYSTEM_INQUIRIES', JSON.stringify(filtered));
-    } catch {}
-
-    try {
-      await fetch(`/api/inquiries?id=${id}`, { method: 'DELETE' });
-    } catch {}
-
-    showToast('🗑️ Inquiry deleted');
+      await apiRequest('DELETE', `/applications/${id}`);
+      setInquiries(prev => prev.filter(i => (i._id || i.id) !== id));
+      showToast('🗑️ Inquiry deleted from MongoDB');
+    } catch (e) {
+      console.error('Error deleting application:', e);
+      showToast('❌ Error deleting inquiry');
+    }
   };
 
   const handleGenerateSyncLink = () => {
@@ -296,41 +289,20 @@ const AdminDashboard = () => {
     }
   };
 
-  /* ── GUARANTEED FETCH INQUIRIES FROM REPOSITORY DATASET, VERCEL CLOUD API & LOCAL STORAGE ── */
+  /* ── STRICT FETCH INQUIRIES EXCLUSIVELY FROM MONGODB API ── */
   const fetchInquiries = async () => {
     try {
-      let combined = Array.isArray(defaultInquiries) ? [...defaultInquiries] : [];
-
-      // 1. Merge from 24/7 Universal Cloud API (/api/inquiries) if available
-      try {
-        const res = await fetch('/api/inquiries');
-        if (res.ok) {
-          const json = await res.json();
-          if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-            json.data.forEach(cloudItem => {
-              if (!combined.some(i => (i._id || i.id) === (cloudItem._id || cloudItem.id) || (i.email === cloudItem.email && i.name === cloudItem.name))) {
-                combined.unshift(cloudItem);
-              }
-            });
-          }
-        }
-      } catch (err) {
-        console.error('Error fetching /api/inquiries:', err);
+      const res = await apiRequest('GET', '/applications');
+      if (res.data && Array.isArray(res.data)) {
+        setInquiries(res.data);
+      } else if (Array.isArray(res)) {
+        setInquiries(res);
+      } else {
+        setInquiries([]);
       }
-
-      // 2. Merge local storage backup items
-      try {
-        const localList = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
-        localList.forEach(localItem => {
-          if (!combined.some(i => (i._id || i.id) === (localItem._id || localItem.id) || (i.email === localItem.email && i.name === localItem.name))) {
-            combined.unshift(localItem);
-          }
-        });
-      } catch {}
-
-      setInquiries(combined);
     } catch (e) {
-      console.error('Error in fetchInquiries:', e);
+      console.error('Error fetching applications from MongoDB:', e);
+      setInquiries([]);
     }
   };
 

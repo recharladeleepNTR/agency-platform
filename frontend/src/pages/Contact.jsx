@@ -90,48 +90,17 @@ const Contact = () => {
       status: 'New'
     };
 
-    // 1. Post to Persistent Database API (Local SQLite Database + Vercel API)
+    // 1. Post directly to MongoDB Database API (Single Source of Truth)
     try {
       await apiRequest('POST', '/applications', payload);
+      setSubmitted(true);
+      setForm(INIT);
     } catch (err) {
-      console.log('Local DB submission notice:', err.message);
+      console.error('MongoDB database save failed:', err);
+      alert(`Submission Error: Could not save inquiry to database (${err.message || 'Server error'}). Please try again.`);
+    } finally {
+      setLoading(false);
     }
-
-    try {
-      await fetch('/api/inquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-    } catch (err) {}
-
-    // 2. Background Email Delivery (FormSubmit & Web3Forms to lazydition@gmail.com)
-    try {
-      await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ ...payload, _subject: `New Application from ${form.name}`, _template: 'table', _captcha: 'false' })
-      });
-    } catch {}
-
-    try {
-      await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ access_key: '27671df2-ea9a-414e-8d96-9ac61d2e3cde', ...payload, subject: `New Application from ${form.name}` })
-      });
-    } catch {}
-
-    // 3. Local Storage Backup
-    try {
-      const stored = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
-      stored.unshift(payload);
-      localStorage.setItem('LAZYDITION_SYSTEM_INQUIRIES', JSON.stringify(stored));
-    } catch {}
-
-    setSubmitted(true);
-    setForm(INIT);
-    setLoading(false);
   };
 
   return (
