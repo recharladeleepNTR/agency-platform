@@ -33,16 +33,12 @@ const serviceTypes = [
 ];
 
 const platforms = [
-  { value: 'YouTube',               label: 'YouTube'               },
-  { value: 'Instagram',             label: 'Instagram'             },
-  { value: 'TikTok',                label: 'TikTok'                },
-  { value: 'Twitter / X',           label: 'Twitter / X'           },
-  { value: 'Kick',                  label: 'Kick'                  },
-  { value: 'Subscription Platform', label: 'OnlyFans / OF'         },
-  { value: 'Patreon',               label: 'Patreon'               },
-  { value: 'Reddit',                label: 'Reddit'                },
-  { value: 'Facebook',              label: 'Facebook'              },
-  { value: 'Other',                 label: 'Other'                 },
+  { value: 'YouTube',                     label: 'YouTube'                     },
+  { value: 'Instagram',                   label: 'Instagram'                   },
+  { value: 'TikTok',                      label: 'TikTok'                      },
+  { value: 'Twitter / X',                 label: 'Twitter / X'                 },
+  { value: 'Subscription based platform', label: 'Subscription based platform' },
+  { value: 'Other',                       label: 'Other'                       },
 ];
 
 const volumeUnits = ['Per day', 'Per week', 'Per month'];
