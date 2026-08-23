@@ -93,16 +93,7 @@ const Contact = () => {
       // Laptop is closed or local server offline
     }
 
-    // 2. Always submit via 24/7 Cloud Form Service to lazydition@gmail.com
-    try {
-      await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ ...payload, _captcha: 'false', _template: 'table' })
-      });
-    } catch {}
-
-    // 3. Post to 24/7 Cloud Database (KVDB.io) so ALL devices (phone, laptop, tablet) stay 100% in sync
+    // 2. Post to 24/7 Cloud Database (KVDB.io) so ALL devices (phone, laptop, tablet) stay 100% in sync
     try {
       const getRes = await fetch('https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries');
       let currentList = [];
