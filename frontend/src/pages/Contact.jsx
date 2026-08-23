@@ -73,24 +73,53 @@ const Contact = () => {
     const serviceName = form.serviceType === 'Other' ? form.serviceOther : form.serviceType;
     const platformName = form.platform === 'Other' ? form.platformOther : form.platform;
 
-    const subject = encodeURIComponent(`New Project Application: ${form.name} (${serviceName})`);
-    const body = encodeURIComponent(
-      `Hello Lazydition Team,\n\n` +
-      `I would like to start a project with you:\n\n` +
-      `Name: ${form.name}\n` +
-      `Email: ${form.email}\n` +
-      `Country: ${form.country}\n` +
-      `Service Type: ${serviceName}\n` +
-      `Platform: ${platformName}\n` +
-      `Volume: ${form.volumeCount || '1'} ${form.volumeUnit}\n` +
-      `Budget: ${form.budget || 'Not specified'}\n\n` +
-      `Message / Details:\n${form.message || 'N/A'}\n\n` +
-      `Sent via lazydition.com`
-    );
+    const payload = {
+      name: form.name,
+      email: form.email,
+      country: form.country,
+      serviceType: serviceName,
+      platform: platformName,
+      volume: `${form.volumeCount || '1'} ${form.volumeUnit}`,
+      budget: form.budget || 'Not specified',
+      message: form.message || 'N/A',
+      _subject: `New Project Application from ${form.name} (${serviceName})`,
+      _template: 'table',
+      _captcha: 'false'
+    };
 
-    // Send request directly to mail (lazydition@gmail.com)
-    window.location.href = `mailto:lazydition@gmail.com?subject=${subject}&body=${body}`;
+    // 1. Silent Background Mail Delivery to lazydition@gmail.com (FormSubmit AJAX)
+    try {
+      await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch (err) {
+      console.error('[Mail Dispatch Warning] Could not dispatch background mail:', err);
+    }
 
+    // 2. Backup Background Mail Dispatch (Web3Forms API)
+    try {
+      await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          access_key: '27671df2-ea9a-414e-8d96-9ac61d2e3cde',
+          ...payload,
+          subject: `New Project Application from ${form.name}`
+        })
+      });
+    } catch (err) {
+      console.error('[Web3Forms Warning] Background mail dispatch error:', err);
+    }
+
+    // 3. Update UI instantly to green success screen with ZERO page redirects or blank tabs
     setSubmitted(true);
     setForm(INIT);
     setLoading(false);
