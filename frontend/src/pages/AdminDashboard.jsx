@@ -151,11 +151,12 @@ const AdminDashboard = () => {
 
   const handleDeleteInquiry = async (id) => {
     setInquiries(prev => prev.filter(i => (i._id || i.id) !== id));
-    try {
-      await fetch(`/api/inquiries?id=${id}`, { method: 'DELETE' });
-    } catch {}
 
     try {
+      const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_DELETED_INQUIRIES') || '[]');
+      if (!deletedIds.includes(id)) deletedIds.push(id);
+      localStorage.setItem('LAZYDITION_DELETED_INQUIRIES', JSON.stringify(deletedIds));
+
       const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
       const filtered = stored.filter(i => (i._id || i.id) !== id);
       localStorage.setItem('LAZYDITION_INQUIRIES_V1', JSON.stringify(filtered));
@@ -164,7 +165,16 @@ const AdminDashboard = () => {
       const legacyFiltered = legacyStored.filter(i => (i._id || i.id) !== id);
       localStorage.setItem('lazydition_local_inquiries', JSON.stringify(legacyFiltered));
     } catch {}
-    showToast('🗑️ Inquiry deleted from Cloud DB');
+
+    try {
+      await apiRequest('DELETE', `/applications/${id}`);
+    } catch {}
+
+    try {
+      await fetch(`/api/inquiries?id=${id}`, { method: 'DELETE' });
+    } catch {}
+
+    showToast('🗑️ Inquiry deleted permanently');
   };
 
   const handleGenerateSyncLink = () => {
@@ -293,9 +303,10 @@ const AdminDashboard = () => {
     }
   };
 
-  /* Fetch Applications from all endpoints (Serverless API + Local Network IP + Localhost + Local Storage Keys) */
+  /* Fetch Applications from all endpoints with deletedIds filtering */
   const fetchInquiries = async () => {
     try {
+      const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_DELETED_INQUIRIES') || '[]');
       let combined = [];
 
       // 1. Fetch from Vercel Serverless Endpoint (/api/inquiries)
@@ -311,12 +322,12 @@ const AdminDashboard = () => {
         console.error('[Sync Error] Could not fetch from /api/inquiries:', e);
       }
 
-      // 2. Fetch from Local/Network Backend SQLite Database API (apiRequest -> http://172.16.15.66:5001 & localhost:5001)
+      // 2. Fetch from Local/Network Backend SQLite Database API
       try {
         const r = await apiRequest('GET', '/applications');
         if (r.data && Array.isArray(r.data)) {
           r.data.forEach(item => {
-            if (!combined.some(i => i.email === item.email && i.name === item.name)) {
+            if (!combined.some(i => (i._id || i.id) === (item._id || item.id) || (i.email === item.email && i.name === item.name))) {
               combined.push(item);
             }
           });
@@ -330,7 +341,7 @@ const AdminDashboard = () => {
         const v1List = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
         const legacyList = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
         [...v1List, ...legacyList].forEach(item => {
-          if (!combined.some(i => i.email === item.email && i.name === item.name)) {
+          if (!combined.some(i => (i._id || i.id) === (item._id || item.id) || (i.email === item.email && i.name === item.name))) {
             combined.unshift(item);
           }
         });
@@ -346,7 +357,7 @@ const AdminDashboard = () => {
           const decoded = JSON.parse(decodeURIComponent(escape(atob(syncData))));
           if (Array.isArray(decoded)) {
             decoded.forEach(item => {
-              if (!combined.some(i => i.email === item.email && i.name === item.name)) {
+              if (!combined.some(i => (i._id || i.id) === (item._id || item.id) || (i.email === item.email && i.name === item.name))) {
                 combined.unshift(item);
               }
             });
@@ -357,7 +368,13 @@ const AdminDashboard = () => {
         console.error('[Sync Link Error] Could not parse URL sync code:', e);
       }
 
-      setInquiries(combined);
+      // 5. Filter out deleted items permanently
+      const finalInquiries = combined.filter(item => {
+        const itemId = item._id || item.id;
+        return !deletedIds.includes(itemId);
+      });
+
+      setInquiries(finalInquiries);
     } catch (e) {
       console.error('Error in fetchInquiries:', e);
     }
