@@ -7,13 +7,13 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoadingSpinner from './components/LoadingSpinner';
 import SmoothScroll, { ScrollToTop } from './components/SmoothScroll';
 
-const Home = lazy(() => import('./pages/Home'));
-const Services = lazy(() => import('./pages/Services'));
-const Portfolio = lazy(() => import('./pages/Portfolio'));
-const About = lazy(() => import('./pages/About'));
-const Contact = lazy(() => import('./pages/Contact'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const Login = lazy(() => import('./pages/Login'));
+import Home from './pages/Home';
+import Services from './pages/Services';
+import Portfolio from './pages/Portfolio';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import AdminDashboard from './pages/AdminDashboard';
+import Login from './pages/Login';
 
 function App() {
   return (
