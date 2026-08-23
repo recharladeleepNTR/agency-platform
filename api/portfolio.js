@@ -1,9 +1,9 @@
 // 24/7 Vercel Serverless API for Lazydition Portfolio Media
 const DEFAULT_PORTFOLIO = [
   // Work Previews
-  { id: 'w1', title: 'Work Preview 1', subtitle: '9:16 Vertical Video', img: '/card_own_power.png', mediaUrl: '/card_own_power.png', ratio: 'Work Preview - Slot 1 (9:16 Vertical)', category: 'Work Preview' },
-  { id: 'w2', title: 'Work Preview 2', subtitle: '16:9 Widescreen Video', img: '/card_own_power.png', mediaUrl: '/card_own_power.png', ratio: 'Work Preview - Slot 2 (16:9 Widescreen)', category: 'Work Preview' },
-  { id: 'w3', title: 'Work Preview 3', subtitle: '4:5 Post Video', img: '/card_own_power.png', mediaUrl: '/card_own_power.png', ratio: 'Work Preview - Slot 3 (4:5 Post)', category: 'Work Preview' },
+  { id: 'w1', title: 'Work Preview 1', subtitle: '9:16 Vertical Video', img: '/uploads/vid_1787332204764_te5no.mp4', mediaUrl: '/uploads/vid_1787332204764_te5no.mp4', ratio: 'Work Preview - Slot 1 (9:16 Vertical)', category: 'Work Preview' },
+  { id: 'w2', title: 'Work Preview 2', subtitle: '16:9 Widescreen Video', img: '/uploads/vid_1787332491700_mygcu.mp4', mediaUrl: '/uploads/vid_1787332491700_mygcu.mp4', ratio: 'Work Preview - Slot 2 (16:9 Widescreen)', category: 'Work Preview' },
+  { id: 'w3', title: 'Work Preview 3', subtitle: '4:5 Post Video', img: '/uploads/img_1787333909377_4uott.png', mediaUrl: '/uploads/img_1787333909377_4uott.png', ratio: 'Work Preview - Slot 3 (4:5 Post)', category: 'Work Preview' },
 
   // 4:5 Posters
   { id: 'p1', title: 'Work Poster 1', subtitle: 'Social Media Post', img: '/uploads/img_1787333949894_1jmf0.jpg', mediaUrl: '/uploads/img_1787333949894_1jmf0.jpg', ratio: '4:5', category: 'Design' },
