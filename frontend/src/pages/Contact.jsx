@@ -118,6 +118,8 @@ const Contact = () => {
             <motion.div variants={fadeUp} className="flex flex-wrap justify-center gap-4">
               <a
                 href="mailto:lazydition@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-2.5 text-sm text-white font-bold hover:text-lazyAccent transition-all duration-200 px-5 py-2.5 rounded-full bg-[#180926] border border-white/15 shadow-sm hover:scale-105"
               >
                 <Mail className="w-5 h-5 text-lazyAccent flex-shrink-0" />

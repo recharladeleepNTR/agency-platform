@@ -67,6 +67,8 @@ const Footer = () => {
             <div className="flex items-center gap-5">
               <a
                 href="mailto:lazydition@gmail.com"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Email"
                 className="hover:scale-125 transition-transform duration-300 group"
               >
