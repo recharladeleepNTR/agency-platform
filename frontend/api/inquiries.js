@@ -1,9 +1,65 @@
 // 24/7 Guaranteed Universal Cloud & Repository Engine for Lazydition Inquiries
-import defaultInquiries from '../src/data/inquiries.json';
+const fs = require('fs');
+const path = require('path');
+
+let defaultInquiries = [];
+try {
+  const jsonPath = path.join(process.cwd(), 'src', 'data', 'inquiries.json');
+  if (fs.existsSync(jsonPath)) {
+    const content = fs.readFileSync(jsonPath, 'utf8');
+    defaultInquiries = JSON.parse(content);
+  }
+} catch (e) {
+  console.error('[Inquiries Load Error]:', e);
+  defaultInquiries = [
+    {
+      _id: 'inq_kiya_346pm',
+      name: 'kiya',
+      email: 'kiya@gmail.com',
+      country: 'India',
+      serviceType: 'Short-form editing',
+      platform: 'Website Application',
+      contentDetails: 'Client Application',
+      volume: '1 Per week',
+      budget: 'Custom',
+      message: 'New application submitted via Contact page',
+      createdAt: '2026-08-23T10:16:00.000Z',
+      status: 'New'
+    },
+    {
+      _id: 'inq_1787479859855_blk4',
+      name: 'Joel',
+      email: 'joel@mail',
+      country: 'Usa',
+      serviceType: 'Short-form editing',
+      platform: 'Instagram',
+      contentDetails: 'Ba ak',
+      volume: '2 Per day',
+      budget: '33',
+      message: 'Alwha',
+      createdAt: '2026-08-23T10:10:59.856Z',
+      status: 'New'
+    },
+    {
+      _id: 'inq_jack_1',
+      name: 'Jack',
+      email: 'jack@gmail.com',
+      country: 'Thailand',
+      serviceType: 'Short-form editing',
+      platform: 'Subscription based platform',
+      contentDetails: 'Video Editing',
+      volume: '1 Per week',
+      budget: 'Custom',
+      message: 'Nil',
+      createdAt: '2026-08-23T09:56:27.454Z',
+      status: 'New'
+    }
+  ];
+}
 
 let memoryStore = [...defaultInquiries];
 
-export default async function handler(req, res) {
+module.exports = function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -64,4 +120,4 @@ export default async function handler(req, res) {
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
-}
+};
