@@ -212,7 +212,7 @@ const Contact = () => {
                         : 'bg-[#180926] text-white/70 border-lazyAccent/30 hover:border-lazyAccent/60 hover:text-white'
                     }`}
                   >
-                    <span>🎨 Creator</span>
+                    <span>Creator</span>
                   </button>
                   <button
                     type="button"
@@ -223,7 +223,7 @@ const Contact = () => {
                         : 'bg-[#180926] text-white/70 border-lazyAccent/30 hover:border-lazyAccent/60 hover:text-white'
                     }`}
                   >
-                    <span>💼 Manager / Agency</span>
+                    <span>Manager / Agency</span>
                   </button>
                 </div>
               </div>
