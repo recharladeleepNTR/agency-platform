@@ -70,58 +70,27 @@ const Contact = () => {
     e.preventDefault();
     setLoading(true);
 
-    const payload = {
-      name: form.name,
-      email: form.email,
-      country: form.country,
-      serviceType: form.serviceType === 'Other' ? form.serviceOther : form.serviceType,
-      platform: form.platform === 'Other' ? form.platformOther : form.platform,
-      contentDetails: form.contentDetails || 'N/A',
-      volume: `${form.volumeCount || '1'} ${form.volumeUnit}`,
-      budget: form.budget || 'Not specified',
-      message: form.message || 'N/A',
-      _subject: `New Client Application from ${form.name} (${form.country})`
-    };
+    const serviceName = form.serviceType === 'Other' ? form.serviceOther : form.serviceType;
+    const platformName = form.platform === 'Other' ? form.platformOther : form.platform;
 
-    // 1. Try local/network backend DB API
-    try {
-      await apiRequest('POST', '/applications', payload);
-    } catch (err) {
-      console.error('[Network Warning] Backend API submission failed:', err?.message || err);
-    }
+    const subject = encodeURIComponent(`New Project Application: ${form.name} (${serviceName})`);
+    const body = encodeURIComponent(
+      `Hello Lazydition Team,\n\n` +
+      `I would like to start a project with you:\n\n` +
+      `Name: ${form.name}\n` +
+      `Email: ${form.email}\n` +
+      `Country: ${form.country}\n` +
+      `Service Type: ${serviceName}\n` +
+      `Platform: ${platformName}\n` +
+      `Volume: ${form.volumeCount || '1'} ${form.volumeUnit}\n` +
+      `Budget: ${form.budget || 'Not specified'}\n\n` +
+      `Message / Details:\n${form.message || 'N/A'}\n\n` +
+      `Sent via lazydition.com`
+    );
 
-    // 2. Post to Vercel Serverless Endpoint (/api/inquiries)
-    try {
-      await fetch('/api/inquiries', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-    } catch (err) {
-      console.error('[Serverless Endpoint Warning] Could not post to /api/inquiries:', err?.message || err);
-    }
+    // Send request directly to mail (lazydition@gmail.com)
+    window.location.href = `mailto:lazydition@gmail.com?subject=${subject}&body=${body}`;
 
-    // 3. Save to standardized device local storage (LAZYDITION_INQUIRIES_V1 & legacy fallback)
-    try {
-      const entry = {
-        _id: 'inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
-        ...payload,
-        createdAt: new Date().toISOString(),
-        status: 'New'
-      };
-      
-      const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
-      stored.unshift(entry);
-      localStorage.setItem('LAZYDITION_INQUIRIES_V1', JSON.stringify(stored));
-
-      const legacyStored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
-      legacyStored.unshift(entry);
-      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(legacyStored));
-    } catch (err) {
-      console.error('[LocalStorage Error] Failed to write to local storage:', err);
-    }
-
-    // Guarantee success UI screen for user so visitor is never shown an error
     setSubmitted(true);
     setForm(INIT);
     setLoading(false);

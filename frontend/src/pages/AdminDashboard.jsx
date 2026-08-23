@@ -57,7 +57,7 @@ const compressAndResize = (fileOrDataUrl, callback) => {
 };
 
 const AdminDashboard = () => {
-  const [tab, setTab]                 = useState('inquiries');
+  const [tab, setTab]                 = useState('portfolio');
   const [inquiries, setInquiries]     = useState([]);
   
   // Multi-Category Portfolio State (Fetched 100% from Backend Database)
@@ -625,7 +625,6 @@ const AdminDashboard = () => {
   };
 
   const tabs = [
-    { key: 'inquiries',    label: 'Inquiries', icon: <Inbox className="w-4 h-4" /> },
     { key: 'portfolio',    label: 'Portfolio Media', icon: <FolderKanban className="w-4 h-4" /> },
     { key: 'testimonials', label: 'Testimonials', icon: <Star className="w-4 h-4" /> },
   ];
