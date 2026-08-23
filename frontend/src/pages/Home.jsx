@@ -134,8 +134,9 @@ const Home = () => {
         >
           {/* Eyebrow */}
           <motion.div variants={fadeUp} className="mb-8">
-            <span className="inline-flex items-center justify-center text-[9px] min-[380px]:text-[10px] sm:text-xs font-extrabold tracking-[0.14em] sm:tracking-[0.22em] uppercase text-lazyAccent border border-lazyAccent/25 bg-lazyAccent/8 px-4 sm:px-6 py-2.5 sm:py-3 rounded-full backdrop-blur-sm whitespace-nowrap text-center">
-              A creative team working behind the scenes
+            <span className="inline-flex flex-col sm:flex-row items-center justify-center text-[10px] sm:text-xs font-extrabold tracking-[0.16em] sm:tracking-[0.22em] uppercase text-lazyAccent border border-lazyAccent/25 bg-lazyAccent/8 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full backdrop-blur-sm sm:whitespace-nowrap leading-relaxed sm:leading-normal text-center">
+              <span>A creative team working behind</span>
+              <span>&nbsp;the scenes</span>
             </span>
           </motion.div>
 
