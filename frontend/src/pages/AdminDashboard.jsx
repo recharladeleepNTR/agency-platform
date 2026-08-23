@@ -5,6 +5,7 @@ import {
   Trash2, Upload, Star, Plus, RefreshCw, Eye
 } from 'lucide-react';
 import { apiRequest, getMediaUrl, isVideoMedia } from '../api/client';
+import defaultInquiries from '../data/inquiries.json';
 
 const inputCls = 'w-full bg-[#180926] border-2 border-lazyAccent/35 text-white font-medium rounded-xl px-4 py-3 text-sm outline-none focus:border-lazyAccent focus:bg-[#210d33] transition-all placeholder:text-white/40 shadow-inner';
 const btnCls  = 'px-5 py-2.5 rounded-xl font-bold text-sm transition-all';
@@ -295,24 +296,22 @@ const AdminDashboard = () => {
     }
   };
 
-  /* ── GUARANTEED FETCH INQUIRIES FROM VERCEL CLOUD API & LOCAL STORAGE ── */
+  /* ── GUARANTEED FETCH INQUIRIES FROM REPOSITORY DATASET, VERCEL CLOUD API & LOCAL STORAGE ── */
   const fetchInquiries = async () => {
     try {
-      // Clear stale local blacklist keys on load
-      try {
-        localStorage.removeItem('LAZYDITION_SYSTEM_DELETED');
-        localStorage.removeItem('LAZYDITION_DELETED_INQUIRIES');
-      } catch {}
+      let combined = Array.isArray(defaultInquiries) ? [...defaultInquiries] : [];
 
-      let items = [];
-
-      // 1. Fetch from 24/7 Universal Cloud API (/api/inquiries)
+      // 1. Merge from 24/7 Universal Cloud API (/api/inquiries) if available
       try {
         const res = await fetch('/api/inquiries');
         if (res.ok) {
           const json = await res.json();
           if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-            items = [...json.data];
+            json.data.forEach(cloudItem => {
+              if (!combined.some(i => (i._id || i.id) === (cloudItem._id || cloudItem.id) || (i.email === cloudItem.email && i.name === cloudItem.name))) {
+                combined.unshift(cloudItem);
+              }
+            });
           }
         }
       } catch (err) {
@@ -323,13 +322,13 @@ const AdminDashboard = () => {
       try {
         const localList = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
         localList.forEach(localItem => {
-          if (!items.some(i => (i._id || i.id) === (localItem._id || localItem.id) || (i.email === localItem.email && i.name === localItem.name))) {
-            items.unshift(localItem);
+          if (!combined.some(i => (i._id || i.id) === (localItem._id || localItem.id) || (i.email === localItem.email && i.name === localItem.name))) {
+            combined.unshift(localItem);
           }
         });
       } catch {}
 
-      setInquiries(items);
+      setInquiries(combined);
     } catch (e) {
       console.error('Error in fetchInquiries:', e);
     }
