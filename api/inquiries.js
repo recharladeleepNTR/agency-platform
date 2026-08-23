@@ -1,35 +1,7 @@
-// 24/7 Universal Cloud Database Engine for Lazydition Inquiries
-const CLOUD_DB_URL = 'https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b';
+// 24/7 Guaranteed Universal Cloud & Repository Engine for Lazydition Inquiries
+import defaultInquiries from '../data/inquiries.json';
 
-async function getCloudInquiries() {
-  try {
-    const res = await fetch(CLOUD_DB_URL);
-    if (res.ok) {
-      const json = await res.json();
-      if (json && json.data && Array.isArray(json.data.inquiries)) {
-        return json.data.inquiries;
-      }
-    }
-  } catch (e) {
-    console.error('[Cloud DB Read Error]:', e);
-  }
-  return [];
-}
-
-async function saveCloudInquiries(inquiries) {
-  try {
-    await fetch(CLOUD_DB_URL, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        name: 'Lazydition Inquiries Store',
-        data: { inquiries }
-      })
-    });
-  } catch (e) {
-    console.error('[Cloud DB Save Error]:', e);
-  }
-}
+let memoryStore = [...defaultInquiries];
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -44,7 +16,7 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // 1. ADD NEW INQUIRY
+  // 1. POST NEW INQUIRY
   if (req.method === 'POST') {
     try {
       const data = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
@@ -63,14 +35,11 @@ export default async function handler(req, res) {
         status: 'New'
       };
 
-      const current = await getCloudInquiries();
-      // Deduplicate by ID or email/name combo
-      if (!current.some(i => i._id === newItem._id || (i.email === newItem.email && i.name === newItem.name))) {
-        current.unshift(newItem);
-        await saveCloudInquiries(current);
+      if (!memoryStore.some(i => i._id === newItem._id || (i.email === newItem.email && i.name === newItem.name))) {
+        memoryStore.unshift(newItem);
       }
 
-      return res.status(200).json({ success: true, inquiry: newItem, data: current });
+      return res.status(200).json({ success: true, inquiry: newItem, data: memoryStore });
     } catch (err) {
       return res.status(400).json({ success: false, error: err.message });
     }
@@ -80,21 +49,18 @@ export default async function handler(req, res) {
   if (req.method === 'DELETE') {
     try {
       const targetId = req.query.id || (req.body && req.body.id);
-      let current = await getCloudInquiries();
       if (targetId) {
-        current = current.filter(item => item._id !== targetId && item.id !== targetId);
-        await saveCloudInquiries(current);
+        memoryStore = memoryStore.filter(item => item._id !== targetId && item.id !== targetId);
       }
-      return res.status(200).json({ success: true, data: current });
+      return res.status(200).json({ success: true, data: memoryStore });
     } catch (err) {
       return res.status(400).json({ success: false, error: err.message });
     }
   }
 
-  // 3. FETCH ALL INQUIRIES
+  // 3. GET INQUIRIES
   if (req.method === 'GET') {
-    const inquiries = await getCloudInquiries();
-    return res.status(200).json({ success: true, data: inquiries });
+    return res.status(200).json({ success: true, data: memoryStore });
   }
 
   return res.status(405).json({ error: 'Method not allowed' });

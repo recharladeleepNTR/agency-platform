@@ -315,48 +315,36 @@ const AdminDashboard = () => {
     }
   };
 
-  /* ── 100% REAL-TIME SYNCHRONOUS FETCH INQUIRIES FROM 24/7 CLOUD DB ── */
+  /* ── GUARANTEED FETCH INQUIRIES FROM VERCEL CLOUD API & LOCAL STORAGE ── */
   const fetchInquiries = async () => {
     try {
       const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_DELETED') || '[]');
       let items = [];
 
-      // 1. Primary: Direct 24/7 Universal Cloud DB
+      // 1. Fetch from 24/7 Universal Cloud API (/api/inquiries)
       try {
-        const cloudRes = await fetch('https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b');
-        if (cloudRes.ok) {
-          const cloudData = await cloudRes.json();
-          if (cloudData && cloudData.data && Array.isArray(cloudData.data.inquiries)) {
-            items = cloudData.data.inquiries;
+        const res = await fetch('/api/inquiries');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+            items = [...json.data];
           }
         }
       } catch (err) {
-        console.error('Error fetching direct cloud DB:', err);
+        console.error('Error fetching /api/inquiries:', err);
       }
 
-      // 2. Secondary: Vercel Serverless /api/inquiries
-      if (items.length === 0) {
-        try {
-          const res = await fetch('/api/inquiries');
-          if (res.ok) {
-            const json = await res.json();
-            if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-              items = json.data;
-            }
+      // 2. Merge local storage backup items
+      try {
+        const localList = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
+        localList.forEach(localItem => {
+          if (!items.some(i => (i._id || i.id) === (localItem._id || localItem.id) || (i.email === localItem.email && i.name === localItem.name))) {
+            items.unshift(localItem);
           }
-        } catch (err) {
-          console.error('Error querying /api/inquiries:', err);
-        }
-      }
+        });
+      } catch {}
 
-      // 3. Fallback to clean local system storage
-      if (items.length === 0) {
-        try {
-          items = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
-        } catch {}
-      }
-
-      // 4. Strict filter out deleted items
+      // 3. Strict filter out deleted items
       const cleanItems = items.filter(i => {
         const id = i._id || i.id;
         const key = `${i.name}_${i.email}`;

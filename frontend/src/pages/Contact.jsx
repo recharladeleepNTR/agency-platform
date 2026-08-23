@@ -88,33 +88,18 @@ const Contact = () => {
       status: 'New'
     };
 
-    // 1. Post to 24/7 Universal Cloud Database (/api/inquiries + Cloud Store Direct)
+    // 1. Post to Vercel Universal API (/api/inquiries)
     try {
-      const res = await fetch('/api/inquiries', {
+      await fetch('/api/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      if (!res.ok) throw new Error('Vercel api endpoint fallback trigger');
     } catch (err) {
-      try {
-        const cloudRes = await fetch('https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b');
-        if (cloudRes.ok) {
-          const cloudData = await cloudRes.json();
-          const inquiriesList = (cloudData && cloudData.data && Array.isArray(cloudData.data.inquiries)) ? cloudData.data.inquiries : [];
-          inquiriesList.unshift(payload);
-          await fetch('https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name: 'Lazydition Inquiries Store', data: { inquiries: inquiriesList } })
-          });
-        }
-      } catch (e) {
-        console.error('[Direct Cloud DB Warning]:', e);
-      }
+      console.error('[API Post Error]:', err);
     }
 
-    // 2. Background Email Delivery (lazydition@gmail.com)
+    // 2. Background Email Delivery (FormSubmit & Web3Forms to lazydition@gmail.com)
     try {
       await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
         method: 'POST',
@@ -123,7 +108,15 @@ const Contact = () => {
       });
     } catch {}
 
-    // 3. Clean Device Local Storage
+    try {
+      await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ access_key: '27671df2-ea9a-414e-8d96-9ac61d2e3cde', ...payload, subject: `New Application from ${form.name}` })
+      });
+    } catch {}
+
+    // 3. Local Storage Backup
     try {
       const stored = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
       stored.unshift(payload);
