@@ -1,6 +1,7 @@
 [
   {
     "_id": "inq_1787479859855_blk4",
+    "role": "Creator",
     "name": "Joel",
     "email": "joel@mail",
     "country": "Usa",
@@ -15,6 +16,7 @@
   },
   {
     "_id": "inq_jack_1",
+    "role": "Creator",
     "name": "Jack",
     "email": "jack@gmail.com",
     "country": "Thailand",
@@ -29,6 +31,7 @@
   },
   {
     "_id": "inq_1787478000000",
+    "role": "Manager / Agency",
     "name": "Deleep Prasad R",
     "email": "deleepdgreat@gmail.com",
     "country": "India",

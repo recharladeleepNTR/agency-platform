@@ -1,21 +1,8 @@
 // 24/7 Guaranteed Universal Cloud & Repository Engine for Lazydition Inquiries
 const defaultInquiries = [
   {
-    _id: "inq_kiya_346pm",
-    name: "kiya",
-    email: "kiya@gmail.com",
-    country: "India",
-    serviceType: "Short-form editing",
-    platform: "Website Application",
-    contentDetails: "Client Application",
-    volume: "1 Per week",
-    budget: "Custom",
-    message: "New application submitted via Contact page",
-    createdAt: "2026-08-23T10:16:00.000Z",
-    status: "New"
-  },
-  {
     _id: "inq_1787479859855_blk4",
+    role: "Creator",
     name: "Joel",
     email: "joel@mail",
     country: "Usa",
@@ -30,6 +17,7 @@ const defaultInquiries = [
   },
   {
     _id: "inq_jack_1",
+    role: "Creator",
     name: "Jack",
     email: "jack@gmail.com",
     country: "Thailand",
@@ -44,6 +32,7 @@ const defaultInquiries = [
   },
   {
     _id: "inq_1787478000000",
+    role: "Manager / Agency",
     name: "Deleep Prasad R",
     email: "deleepdgreat@gmail.com",
     country: "India",
@@ -79,6 +68,7 @@ export default function handler(req, res) {
       const data = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
       const newItem = {
         _id: data._id || ('inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6)),
+        role: data.role || 'Creator',
         name: data.name || 'Client',
         email: data.email || 'N/A',
         country: data.country || 'N/A',

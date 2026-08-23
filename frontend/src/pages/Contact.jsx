@@ -44,6 +44,7 @@ const platforms = [
 const volumeUnits = ['Per day', 'Per week', 'Per month'];
 
 const INIT = {
+  role: 'Creator',
   name: '',
   email: '',
   country: '',
@@ -75,6 +76,7 @@ const Contact = () => {
 
     const payload = {
       _id: 'inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+      role: form.role || 'Creator',
       name: form.name,
       email: form.email,
       country: form.country,
@@ -226,6 +228,37 @@ const Contact = () => {
               onSubmit={handleSubmit}
               className="max-w-3xl mx-auto bg-[#140622] p-8 md:p-12 rounded-3xl border-2 border-lazyAccent/30 shadow-[0_0_50px_rgba(148,148,255,0.15)]"
             >
+              {/* ── Role Selector (Creator / Manager or Agency) ── */}
+              <div className="mb-8">
+                <label className={labelCls}>
+                  I am a <span className="text-lazyAccent">*</span>
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={() => set('role', 'Creator')}
+                    className={`py-3.5 px-4 rounded-xl font-extrabold text-sm border-2 transition-all flex items-center justify-center gap-2 ${
+                      form.role === 'Creator'
+                        ? 'bg-lazyAccent text-white border-lazyAccent shadow-[0_0_20px_rgba(148,148,255,0.4)]'
+                        : 'bg-[#180926] text-white/70 border-lazyAccent/30 hover:border-lazyAccent/60 hover:text-white'
+                    }`}
+                  >
+                    <span>🎨 Creator</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => set('role', 'Manager / Agency')}
+                    className={`py-3.5 px-4 rounded-xl font-extrabold text-sm border-2 transition-all flex items-center justify-center gap-2 ${
+                      form.role === 'Manager / Agency'
+                        ? 'bg-lazyAccent text-white border-lazyAccent shadow-[0_0_20px_rgba(148,148,255,0.4)]'
+                        : 'bg-[#180926] text-white/70 border-lazyAccent/30 hover:border-lazyAccent/60 hover:text-white'
+                    }`}
+                  >
+                    <span>💼 Manager / Agency</span>
+                  </button>
+                </div>
+              </div>
+
               {/* ── Name + Email ── */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
