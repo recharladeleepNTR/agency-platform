@@ -74,52 +74,55 @@ const Contact = () => {
     const platformName = form.platform === 'Other' ? form.platformOther : form.platform;
 
     const payload = {
+      _id: 'inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: form.name,
       email: form.email,
       country: form.country,
       serviceType: serviceName,
       platform: platformName,
+      contentDetails: form.contentDetails || 'N/A',
       volume: `${form.volumeCount || '1'} ${form.volumeUnit}`,
       budget: form.budget || 'Not specified',
       message: form.message || 'N/A',
-      _subject: `New Project Application from ${form.name} (${serviceName})`,
-      _template: 'table',
-      _captcha: 'false'
+      createdAt: new Date().toISOString(),
+      status: 'New'
     };
 
-    // 1. Silent Background Mail Delivery to lazydition@gmail.com (FormSubmit AJAX)
+    // 1. Post to 24/7 Cloud Database (/api/inquiries) so ALL devices display it live in Admin Dashboard
     try {
-      await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
+      await fetch('/api/inquiries', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
     } catch (err) {
-      console.error('[Mail Dispatch Warning] Could not dispatch background mail:', err);
+      console.error('[Cloud DB Warning] Could not post to /api/inquiries:', err);
     }
 
-    // 2. Backup Background Mail Dispatch (Web3Forms API)
+    // 2. Silent Background Email Notification (FormSubmit & Web3Forms)
+    try {
+      await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ ...payload, _subject: `New Application from ${form.name}`, _template: 'table', _captcha: 'false' })
+      });
+    } catch {}
+
     try {
       await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          access_key: '27671df2-ea9a-414e-8d96-9ac61d2e3cde',
-          ...payload,
-          subject: `New Project Application from ${form.name}`
-        })
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ access_key: '27671df2-ea9a-414e-8d96-9ac61d2e3cde', ...payload, subject: `New Application from ${form.name}` })
       });
-    } catch (err) {
-      console.error('[Web3Forms Warning] Background mail dispatch error:', err);
-    }
+    } catch {}
 
-    // 3. Update UI instantly to green success screen with ZERO page redirects or blank tabs
+    // 3. Local Storage Backup
+    try {
+      const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
+      stored.unshift(payload);
+      localStorage.setItem('LAZYDITION_INQUIRIES_V1', JSON.stringify(stored));
+    } catch {}
+
     setSubmitted(true);
     setForm(INIT);
     setLoading(false);

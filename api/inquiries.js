@@ -1,5 +1,20 @@
 // 24/7 Vercel Serverless Cloud Endpoint for Lazydition Inquiries
-let globalInquiries = [];
+let globalInquiries = [
+  {
+    _id: 'inq_demo_1',
+    name: 'Deleep Prasad R',
+    email: 'deleepdgreat@gmail.com',
+    country: 'India',
+    serviceType: 'Short-form editing',
+    platform: 'Twitter / X',
+    contentDetails: 'Short-form reels & shorts',
+    volume: '1 Per week',
+    budget: 'Custom',
+    message: 'Interested in short form video editing.',
+    createdAt: new Date().toISOString(),
+    status: 'New'
+  }
+];
 
 export default function handler(req, res) {
   // CORS Headers for cross-origin mobile & desktop requests
@@ -19,7 +34,7 @@ export default function handler(req, res) {
     try {
       const data = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
       const newInquiry = {
-        _id: 'inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+        _id: data._id || ('inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7)),
         name: data.name || 'Anonymous Client',
         email: data.email || 'N/A',
         country: data.country || 'N/A',
@@ -33,8 +48,24 @@ export default function handler(req, res) {
         status: 'New'
       };
 
-      globalInquiries.unshift(newInquiry);
+      // Prevent duplicate additions
+      if (!globalInquiries.some(i => i._id === newInquiry._id || (i.email === newInquiry.email && i.name === newInquiry.name))) {
+        globalInquiries.unshift(newInquiry);
+      }
+
       return res.status(200).json({ success: true, inquiry: newInquiry, data: globalInquiries });
+    } catch (e) {
+      return res.status(400).json({ success: false, error: e.message });
+    }
+  }
+
+  if (req.method === 'DELETE') {
+    try {
+      const { id } = req.query;
+      if (id) {
+        globalInquiries = globalInquiries.filter(i => i._id !== id && i.id !== id);
+      }
+      return res.status(200).json({ success: true, data: globalInquiries });
     } catch (e) {
       return res.status(400).json({ success: false, error: e.message });
     }

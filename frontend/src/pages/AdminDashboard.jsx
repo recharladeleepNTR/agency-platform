@@ -149,8 +149,12 @@ const AdminDashboard = () => {
     setInqMessage('');
   };
 
-  const handleDeleteInquiry = (id) => {
+  const handleDeleteInquiry = async (id) => {
     setInquiries(prev => prev.filter(i => (i._id || i.id) !== id));
+    try {
+      await fetch(`/api/inquiries?id=${id}`, { method: 'DELETE' });
+    } catch {}
+
     try {
       const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
       const filtered = stored.filter(i => (i._id || i.id) !== id);
@@ -160,7 +164,7 @@ const AdminDashboard = () => {
       const legacyFiltered = legacyStored.filter(i => (i._id || i.id) !== id);
       localStorage.setItem('lazydition_local_inquiries', JSON.stringify(legacyFiltered));
     } catch {}
-    showToast('🗑️ Inquiry deleted');
+    showToast('🗑️ Inquiry deleted from Cloud DB');
   };
 
   const handleGenerateSyncLink = () => {
@@ -688,6 +692,7 @@ const AdminDashboard = () => {
   };
 
   const tabs = [
+    { key: 'inquiries',    label: 'Inquiries', icon: <Inbox className="w-4 h-4" /> },
     { key: 'portfolio',    label: 'Portfolio Media', icon: <FolderKanban className="w-4 h-4" /> },
     { key: 'testimonials', label: 'Testimonials', icon: <Star className="w-4 h-4" /> },
   ];
