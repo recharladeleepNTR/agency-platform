@@ -95,34 +95,30 @@ const Contact = () => {
 
     // 2. Always submit via 24/7 Cloud Form Service to lazydition@gmail.com
     try {
-      const cloudRes = await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
+      await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          ...payload,
-          _captcha: 'false',
-          _template: 'table'
-        })
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ ...payload, _captcha: 'false', _template: 'table' })
       });
-      if (cloudRes.ok) {
-        submittedSuccessfully = true;
-      }
-    } catch (err) {
-      console.error('Cloud submission fallback error:', err);
-    }
+    } catch {}
 
-    // 3. Post to 24/7 Vercel Serverless Cloud API & Local Sync
+    // 3. Post to 24/7 Cloud Database (KVDB.io) so ALL devices (phone, laptop, tablet) stay 100% in sync
     try {
-      await fetch('/api/inquiries', {
-        method: 'POST',
+      const getRes = await fetch('https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries');
+      let currentList = [];
+      if (getRes.ok) {
+        currentList = await getRes.json();
+        if (!Array.isArray(currentList)) currentList = [];
+      }
+      const newEntry = { _id: 'inq_' + Date.now(), ...payload, createdAt: new Date().toISOString() };
+      currentList.unshift(newEntry);
+      await fetch('https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries', {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(currentList)
       });
     } catch (e) {
-      console.error('Cloud DB endpoint error:', e);
+      console.error('Cloud Sync error:', e);
     }
 
     // Save backup locally to browser storage

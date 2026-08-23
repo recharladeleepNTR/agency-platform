@@ -202,25 +202,40 @@ const AdminDashboard = () => {
     }
   };
 
-  /* Fetch Applications directly from 24/7 Vercel Serverless API + Local DB + Browser Backup */
+  /* Fetch Applications directly from 24/7 KVDB Cloud DB + Vercel Serverless + Local DB + Browser Backup */
   const fetchInquiries = async () => {
     try {
       let combined = [];
 
-      // 1. Fetch from 24/7 Vercel Serverless API (/api/inquiries)
+      // 1. Fetch from 24/7 KVDB Cloud DB (https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries)
       try {
-        const cloudRes = await fetch('/api/inquiries');
+        const cloudRes = await fetch('https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries');
         if (cloudRes.ok) {
-          const cloudJson = await cloudRes.json();
-          if (cloudJson.data && Array.isArray(cloudJson.data)) {
-            combined = [...cloudJson.data];
+          const cloudData = await cloudRes.json();
+          if (Array.isArray(cloudData)) {
+            combined = [...cloudData];
           }
         }
       } catch (e) {
-        console.error('Error fetching Vercel serverless inquiries:', e);
+        console.error('Error fetching KVDB cloud inquiries:', e);
       }
 
-      // 2. Fetch from Local Backend SQLite DB if running
+      // 2. Fetch from Vercel Serverless /api/inquiries fallback
+      try {
+        const serverlessRes = await fetch('/api/inquiries');
+        if (serverlessRes.ok) {
+          const sJson = await serverlessRes.json();
+          if (sJson.data && Array.isArray(sJson.data)) {
+            sJson.data.forEach(item => {
+              if (!combined.some(i => i.email === item.email && i.name === item.name)) {
+                combined.push(item);
+              }
+            });
+          }
+        }
+      } catch {}
+
+      // 3. Fetch from Local Backend SQLite DB if running
       try {
         const r = await apiRequest('GET', '/applications');
         if (r.data && Array.isArray(r.data)) {
@@ -232,7 +247,7 @@ const AdminDashboard = () => {
         }
       } catch {}
 
-      // 3. Fetch from browser local storage backup
+      // 4. Fetch from browser local storage backup
       try {
         const localStored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
         localStored.forEach(item => {
