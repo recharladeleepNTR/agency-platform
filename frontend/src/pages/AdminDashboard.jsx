@@ -142,13 +142,56 @@ const AdminDashboard = () => {
     }
   };
 
-  /* Fetch Applications directly from Database API */
+  /* Fetch Applications directly from Database API + 24/7 Cloud Database */
   const fetchInquiries = async () => {
     try {
-      const r = await apiRequest('GET', '/applications');
-      if (r.data && Array.isArray(r.data)) {
-        setInquiries(r.data);
+      let combined = [];
+
+      // 1. Fetch from Local Backend SQLite DB if running
+      try {
+        const r = await apiRequest('GET', '/applications');
+        if (r.data && Array.isArray(r.data)) {
+          combined = [...r.data];
+        }
+      } catch {}
+
+      // 2. Fetch 24/7 Cloud Submissions from Restful-API Cloud DB
+      try {
+        const cloudRes = await fetch('https://api.restful-api.dev/objects');
+        if (cloudRes.ok) {
+          const cloudData = await cloudRes.json();
+          if (Array.isArray(cloudData)) {
+            const cloudInquiries = cloudData
+              .filter(item => item.name === 'LazyditionInquiry' && item.data)
+              .map(item => ({
+                _id: item.id,
+                name: item.data.name,
+                email: item.data.email,
+                country: item.data.country,
+                serviceType: item.data.serviceType,
+                platform: item.data.platform,
+                contentDetails: item.data.contentDetails,
+                volume: item.data.volume,
+                budget: item.data.budget,
+                message: item.data.message,
+                createdAt: item.data.createdAt || new Date().toISOString(),
+                status: 'New'
+              }));
+
+            // Merge & deduplicate by email + name
+            const existingKeys = new Set(combined.map(i => `${i.email}-${i.name}`));
+            cloudInquiries.forEach(ci => {
+              if (!existingKeys.has(`${ci.email}-${ci.name}`)) {
+                combined.unshift(ci);
+              }
+            });
+          }
+        }
+      } catch (e) {
+        console.error('Error fetching cloud inquiries:', e);
       }
+
+      setInquiries(combined);
     } catch (e) {
       console.error('Error fetching applications from DB:', e);
     }

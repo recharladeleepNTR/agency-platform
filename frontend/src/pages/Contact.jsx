@@ -114,6 +114,23 @@ const Contact = () => {
       console.error('Cloud submission fallback error:', err);
     }
 
+    // 3. Post to 24/7 Cloud Database so Admin Dashboard sees ALL form submissions worldwide from any device
+    try {
+      await fetch('https://api.restful-api.dev/objects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'LazyditionInquiry',
+          data: {
+            ...payload,
+            createdAt: new Date().toISOString()
+          }
+        })
+      });
+    } catch (e) {
+      console.error('Cloud Database store error:', e);
+    }
+
     // Guarantee success UI screen for user so visitor is never shown an error
     setSubmitted(true);
     setForm(INIT);
