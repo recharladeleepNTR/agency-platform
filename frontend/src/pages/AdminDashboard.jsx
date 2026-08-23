@@ -1011,16 +1011,24 @@ const AdminDashboard = () => {
                 </div>
 
                 {newImg && (
-                  <div className="relative aspect-video max-w-xs rounded-xl overflow-hidden bg-black border border-lazyAccent/30">
+                  <div className="relative aspect-video max-w-xs rounded-xl overflow-hidden bg-black border border-lazyAccent/30" onContextMenu={(e) => e.preventDefault()}>
+                    <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
                     {isVideoMedia(newImg) ? (
-                      <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                      <video
+                        autoPlay loop muted playsInline
+                        disablePictureInPicture
+                        controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
+                        disableRemotePlayback
+                        onContextMenu={(e) => e.preventDefault()}
+                        className="w-full h-full object-cover pointer-events-none"
+                      >
                         <source src={newImg} type="video/mp4" />
                         <source src={newImg} type="video/webm" />
                       </video>
                     ) : (
-                      <img src={newImg} alt="Preview" className="w-full h-full object-cover" />
+                      <img src={newImg} alt="Preview" onContextMenu={(e) => e.preventDefault()} className="w-full h-full object-cover pointer-events-none" />
                     )}
-                    <span className="absolute bottom-1.5 left-1.5 text-[9px] font-black text-white bg-black/80 px-2 py-0.5 rounded border border-white/20">
+                    <span className="absolute bottom-1.5 left-1.5 z-30 text-[9px] font-black text-white bg-black/80 px-2 py-0.5 rounded border border-white/20">
                       Selected Media Preview
                     </span>
                   </div>
@@ -1038,15 +1046,23 @@ const AdminDashboard = () => {
                   const itemKey = item._id || item.id || `item-${idx}`;
 
                   return (
-                    <div key={itemKey} className="p-4 rounded-2xl bg-[#180926] border border-white/10 space-y-3 relative group">
-                      <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10">
+                    <div key={itemKey} className="p-4 rounded-2xl bg-[#180926] border border-white/10 space-y-3 relative group" onContextMenu={(e) => e.preventDefault()}>
+                      <div className="relative aspect-video rounded-xl overflow-hidden bg-black border border-white/10" onContextMenu={(e) => e.preventDefault()}>
+                        <div className="absolute inset-0 z-10 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
                         {isVideoMedia(mediaSrc) ? (
-                          <video autoPlay loop muted playsInline className="w-full h-full object-cover">
+                          <video
+                            autoPlay loop muted playsInline
+                            disablePictureInPicture
+                            controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
+                            disableRemotePlayback
+                            onContextMenu={(e) => e.preventDefault()}
+                            className="w-full h-full object-cover pointer-events-none"
+                          >
                             <source src={mediaSrc} type="video/mp4" />
                             <source src={mediaSrc} type="video/webm" />
                           </video>
                         ) : (
-                          <img src={mediaSrc} alt={item.title} className="w-full h-full object-cover" />
+                          <img src={mediaSrc} alt={item.title} onContextMenu={(e) => e.preventDefault()} className="w-full h-full object-cover pointer-events-none" />
                         )}
 
                         {/* Fast Device Replace Button */}

@@ -205,3 +205,34 @@
   background: #9494FF;
   animation: orbit 8s linear infinite;
 }
+
+/* ── TOTAL MEDIA SECURITY LOCKDOWN (NO PIP, NO DOWNLOAD, NO RIGHT CLICK, NO CONTROLS) ── */
+video, img {
+  -webkit-touch-callout: none !important;
+  -webkit-user-select: none !important;
+  -khtml-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-user-drag: none !important;
+}
+
+video::-webkit-media-controls {
+  display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+video::-webkit-media-controls-panel {
+  display: none !important;
+}
+
+video::-webkit-media-controls-picture-in-picture-button {
+  display: none !important;
+}
+
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+}

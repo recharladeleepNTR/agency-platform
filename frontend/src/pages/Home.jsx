@@ -386,7 +386,9 @@ const Home = () => {
             {/* First Item: 9:16 Vertical Video (Emphasized, Visibly Larger & Taller - 264x470px) - LEFT */}
             <div
               className="relative w-full max-w-[264px] aspect-[9/16] rounded-3xl bg-[#12051f] border border-lazyAccent/30 hover:border-lazyAccent/70 hover:shadow-[0_0_40px_rgba(148,148,255,0.35)] transition-all duration-300 flex flex-col items-center justify-center p-6 group overflow-hidden flex-shrink-0 z-10"
+              onContextMenu={(e) => e.preventDefault()}
             >
+              <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
               {slot1 && (slot1.img || slot1.mediaUrl) ? (
                 isVideoMedia(slot1.img || slot1.mediaUrl) ? (
                   <video
@@ -398,14 +400,19 @@ const Home = () => {
                       }
                     }}
                     autoPlay loop playsInline webkit-playsinline="true" muted preload="auto"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    disablePictureInPicture
+                    controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
+                    disableRemotePlayback
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
                   />
                 ) : (
                   <img
                     src={getMediaUrl(slot1.img || slot1.mediaUrl)}
                     alt="Reel / Short Preview"
                     onError={(e) => { e.target.onerror = null; e.target.src = '/card_own_power.png'; }}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
                   />
                 )
               ) : (
@@ -422,7 +429,9 @@ const Home = () => {
             {/* Second Item (Middle): 16:9 Widescreen Video (Exact 16:9 Ratio - 498x280px, Zero Cropping) - MIDDLE */}
             <div
               className="relative w-full max-w-[498px] aspect-video rounded-3xl bg-[#12051f] border border-lazyAccent/20 hover:border-lazyAccent/60 hover:shadow-[0_0_35px_rgba(148,148,255,0.25)] transition-all duration-300 flex flex-col items-center justify-center p-6 group overflow-hidden shadow-2xl flex-shrink-0"
+              onContextMenu={(e) => e.preventDefault()}
             >
+              <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
               {slot2 && (slot2.img || slot2.mediaUrl) ? (
                 isVideoMedia(slot2.img || slot2.mediaUrl) ? (
                   <video
@@ -434,14 +443,19 @@ const Home = () => {
                       }
                     }}
                     autoPlay loop playsInline webkit-playsinline="true" muted preload="auto"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    disablePictureInPicture
+                    controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
+                    disableRemotePlayback
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
                   />
                 ) : (
                   <img
                     src={getMediaUrl(slot2.img || slot2.mediaUrl)}
                     alt="Widescreen Video Preview"
                     onError={(e) => { e.target.onerror = null; e.target.src = '/card_own_power.png'; }}
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
                   />
                 )
               ) : (
@@ -458,7 +472,9 @@ const Home = () => {
             {/* Third Item: 4:5 Portrait Image (320x400px) - RIGHT */}
             <div
               className="relative w-full max-w-[320px] aspect-[4/5] rounded-3xl bg-[#12051f] border border-lazyAccent/20 hover:border-lazyAccent/60 hover:shadow-[0_0_35px_rgba(148,148,255,0.25)] transition-all duration-300 flex flex-col items-center justify-center p-6 group overflow-hidden flex-shrink-0"
+              onContextMenu={(e) => e.preventDefault()}
             >
+              <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
               {slot3 && (slot3.img || slot3.mediaUrl) ? (
                 isVideoMedia(slot3.img || slot3.mediaUrl) ? (
                   <video
@@ -470,7 +486,11 @@ const Home = () => {
                       }
                     }}
                     autoPlay loop playsInline webkit-playsinline="true" muted preload="auto"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    disablePictureInPicture
+                    controlsList="nodownload nofullscreen noremoteplayback noplaybackrate"
+                    disableRemotePlayback
+                    onContextMenu={(e) => e.preventDefault()}
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 pointer-events-none"
                   />
                 ) : (
                   <img

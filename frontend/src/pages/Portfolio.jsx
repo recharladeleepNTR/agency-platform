@@ -290,19 +290,22 @@ const Portfolio = () => {
                       ? 'border-2 border-lazyAccent/80 shadow-[0_0_50px_rgba(148,148,255,0.45)] z-30'
                       : 'border border-white/15 shadow-xl z-10 hover:border-lazyAccent/40'
                     }
-                    bg-[#140622] group transition-colors duration-300
+                    bg-[#140622] group transition-colors duration-300 relative
                   `}
+                  onContextMenu={(e) => e.preventDefault()}
                 >
+                  <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
                   <img
                     src={mediaImage}
                     alt="Client Work"
                     loading="lazy"
                     decoding="async"
+                    onContextMenu={(e) => e.preventDefault()}
                     onError={(e) => {
                       e.target.onerror = null;
                       e.target.src = '/uploads/img_1787335251860_szynt.jpg';
                     }}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 pointer-events-none"
                   />
                 </motion.div>
               );
@@ -346,17 +349,20 @@ const Portfolio = () => {
                   <div
                     key={`r1-${idx}`}
                     className="relative w-[280px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden border border-white/15 bg-black hover:border-lazyAccent/70 hover:shadow-[0_0_30px_rgba(148,148,255,0.4)] transition-all duration-300 flex-shrink-0 group/card"
+                    onContextMenu={(e) => e.preventDefault()}
                   >
+                    <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
                     <img
                       src={mediaImg}
                       alt="Client Work"
                       loading="lazy"
                       decoding="async"
+                      onContextMenu={(e) => e.preventDefault()}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/uploads/img_1787335385637_80rgz.jpg';
                       }}
-                      className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500 pointer-events-none"
                     />
                   </div>
                 );
@@ -379,17 +385,20 @@ const Portfolio = () => {
                     <div
                       key={`r2-${idx}`}
                       className="relative w-[280px] sm:w-[320px] aspect-video rounded-2xl overflow-hidden border border-white/15 bg-black hover:border-lazyAccent/70 hover:shadow-[0_0_30px_rgba(148,148,255,0.4)] transition-all duration-300 flex-shrink-0 group/card"
+                      onContextMenu={(e) => e.preventDefault()}
                     >
+                      <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
                       <img
                         src={mediaImg}
                         alt="Client Work"
                         loading="lazy"
                         decoding="async"
+                        onContextMenu={(e) => e.preventDefault()}
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = '/uploads/img_1787335404823_ywbus.jpg';
                         }}
-                        className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover/card:scale-105 transition-transform duration-500 pointer-events-none"
                       />
                     </div>
                   );
@@ -419,19 +428,22 @@ const Portfolio = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5 }}
+                  onContextMenu={(e) => e.preventDefault()}
                   className="relative rounded-3xl overflow-hidden border-2 border-lazyAccent/30 bg-black hover:border-lazyAccent/70 hover:shadow-[0_0_40px_rgba(148,148,255,0.4)] transition-all duration-300 group"
                 >
-                  <div className="relative w-full aspect-[6/1] rounded-[22px] overflow-hidden bg-black flex items-center justify-center">
+                  <div className="relative w-full aspect-[6/1] rounded-[22px] overflow-hidden bg-black flex items-center justify-center" onContextMenu={(e) => e.preventDefault()}>
+                    <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
                     <img
                       src={bannerImg}
                       alt="Client Work"
                       loading="lazy"
                       decoding="async"
+                      onContextMenu={(e) => e.preventDefault()}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = '/uploads/img_1787334002671_273ss.jpg';
                       }}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 pointer-events-none"
                     />
                   </div>
                 </motion.div>
