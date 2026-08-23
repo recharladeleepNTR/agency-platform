@@ -44,6 +44,20 @@ const initDatabase = () => {
       createdAt TEXT DEFAULT CURRENT_TIMESTAMP,
       updatedAt TEXT DEFAULT CURRENT_TIMESTAMP
     );
+    CREATE TABLE IF NOT EXISTS client_applications (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      country TEXT DEFAULT '',
+      serviceType TEXT DEFAULT '',
+      platform TEXT DEFAULT '',
+      contentDetails TEXT DEFAULT '',
+      volume TEXT DEFAULT '',
+      budget TEXT DEFAULT '',
+      message TEXT DEFAULT '',
+      status TEXT DEFAULT 'New',
+      createdAt TEXT DEFAULT CURRENT_TIMESTAMP
+    );
   `;
 
   if (isBetterSqlite) {
@@ -126,6 +140,49 @@ const clearAllItems = () => {
   }
 };
 
+const getAllApplications = () => {
+  if (!db) return [];
+  if (isBetterSqlite) {
+    const rows = db.prepare('SELECT * FROM client_applications ORDER BY rowid DESC').all();
+    return rows.map(r => ({ ...r, _id: r.id }));
+  }
+  return [];
+};
+
+const insertApplication = (app) => {
+  if (!db) return app;
+  const appId = app._id || app.id || ('inq_' + Date.now());
+  const name = app.name || 'Anonymous Client';
+  const email = app.email || 'N/A';
+  const country = app.country || 'N/A';
+  const serviceType = app.serviceType || 'N/A';
+  const platform = app.platform || 'N/A';
+  const contentDetails = app.contentDetails || 'N/A';
+  const volume = app.volume || '1 Per week';
+  const budget = app.budget || 'Not specified';
+  const message = app.message || 'N/A';
+  const status = app.status || 'New';
+  const createdAt = app.createdAt || new Date().toISOString();
+
+  if (isBetterSqlite) {
+    const stmt = db.prepare(`
+      INSERT OR REPLACE INTO client_applications (id, name, email, country, serviceType, platform, contentDetails, volume, budget, message, status, createdAt)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    stmt.run(appId, name, email, country, serviceType, platform, contentDetails, volume, budget, message, status, createdAt);
+  }
+  return { ...app, _id: appId, id: appId };
+};
+
+const deleteApplication = (id) => {
+  if (!db || !id) return false;
+  if (isBetterSqlite) {
+    const stmt = db.prepare('DELETE FROM client_applications WHERE id = ?');
+    stmt.run(String(id));
+  }
+  return true;
+};
+
 module.exports = {
   db,
   getAllItems,
@@ -133,4 +190,7 @@ module.exports = {
   insertItem,
   deleteItem,
   clearAllItems,
+  getAllApplications,
+  insertApplication,
+  deleteApplication,
 };

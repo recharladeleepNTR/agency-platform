@@ -1,19 +1,5 @@
 [
   {
-    "_id": "inq_kiya_346pm",
-    "name": "kiya",
-    "email": "kiya@gmail.com",
-    "country": "India",
-    "serviceType": "Short-form editing",
-    "platform": "Website Application",
-    "contentDetails": "Client Application",
-    "volume": "1 Per week",
-    "budget": "Custom",
-    "message": "New application submitted via Contact page",
-    "createdAt": "2026-08-23T10:16:00.000Z",
-    "status": "New"
-  },
-  {
     "_id": "inq_1787479859855_blk4",
     "name": "Joel",
     "email": "joel@mail",

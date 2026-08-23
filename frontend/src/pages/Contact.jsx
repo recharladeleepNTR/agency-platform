@@ -88,16 +88,20 @@ const Contact = () => {
       status: 'New'
     };
 
-    // 1. Post to Vercel Universal API (/api/inquiries)
+    // 1. Post to Persistent Database API (Local SQLite Database + Vercel API)
+    try {
+      await apiRequest('POST', '/applications', payload);
+    } catch (err) {
+      console.log('Local DB submission notice:', err.message);
+    }
+
     try {
       await fetch('/api/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-    } catch (err) {
-      console.error('[API Post Error]:', err);
-    }
+    } catch (err) {}
 
     // 2. Background Email Delivery (FormSubmit & Web3Forms to lazydition@gmail.com)
     try {
