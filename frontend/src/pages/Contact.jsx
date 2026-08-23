@@ -89,8 +89,8 @@ const Contact = () => {
     try {
       await apiRequest('POST', '/applications', payload);
       submittedSuccessfully = true;
-    } catch {
-      // Laptop is closed or local server offline
+    } catch (err) {
+      console.error('[Network Warning] Backend API submission failed. Falling back to local & cloud storage sync.', err?.message || err);
     }
 
     // 2. Post to 24/7 Cloud Database (KVDB.io) so ALL devices (phone, laptop, tablet) stay 100% in sync
@@ -109,15 +109,18 @@ const Contact = () => {
         body: JSON.stringify(currentList)
       });
     } catch (e) {
-      console.error('Cloud Sync error:', e);
+      console.error('[Cloud Sync Warning] Could not sync inquiry to cloud KV store:', e?.message || e);
     }
 
     // Save backup locally to browser storage
     try {
+      console.error('[LocalStorage Sync] Storing submission backup to local device storage.');
       const stored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
       stored.unshift({ _id: 'local_' + Date.now(), ...payload, createdAt: new Date().toISOString() });
       localStorage.setItem('lazydition_local_inquiries', JSON.stringify(stored));
-    } catch {}
+    } catch (err) {
+      console.error('[LocalStorage Error] Failed to write fallback to local storage:', err);
+    }
 
     // Guarantee success UI screen for user so visitor is never shown an error
     setSubmitted(true);

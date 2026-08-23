@@ -1,7 +1,9 @@
 import axios from 'axios';
 
+export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+
 const API_BASE_URLS = [
-  import.meta.env.VITE_API_URL,
+  BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}/api`,
   'http://172.16.15.66:5001/api',
   'http://localhost:5001/api',
   'http://127.0.0.1:5001/api',
@@ -34,9 +36,11 @@ export const apiRequest = async (method, path, data = null, config = {}) => {
       return res;
     } catch (err) {
       lastError = err;
+      console.error(`[API Network Error] Connection failed to ${baseUrl}${path}:`, err.message || err);
       if (err.response) throw err; // If server responded with status code 4xx/5xx, return error
     }
   }
+  console.error('[API Failure] All API base URLs exhausted without clean response. Falling back to local/cloud handlers.');
   throw lastError;
 };
 
