@@ -5,6 +5,7 @@ import {
   Trash2, Upload, Star, Plus, RefreshCw, Eye
 } from 'lucide-react';
 import { apiRequest, getMediaUrl, isVideoMedia } from '../api/client';
+import CountryFlag from '../components/CountryFlag';
 
 const inputCls = 'w-full bg-[#180926] border-2 border-lazyAccent/35 text-white font-medium rounded-xl px-4 py-3 text-sm outline-none focus:border-lazyAccent focus:bg-[#210d33] transition-all placeholder:text-white/40 shadow-inner';
 const btnCls  = 'px-5 py-2.5 rounded-xl font-bold text-sm transition-all';
@@ -854,7 +855,7 @@ const AdminDashboard = () => {
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs text-white/80 font-medium">
                         <div><strong className="text-lazyAccent">Email:</strong> {app.email}</div>
-                        <div><strong className="text-lazyAccent">Country:</strong> {app.country}</div>
+                        <div className="flex items-center gap-1.5"><strong className="text-lazyAccent">Country:</strong> <CountryFlag country={app.country} className="w-4 h-3 rounded-xs object-cover flex-shrink-0" /> <span>{app.country}</span></div>
                         <div><strong className="text-lazyAccent">Service:</strong> {app.serviceType}</div>
                         <div><strong className="text-lazyAccent">Platform:</strong> {app.platform}</div>
                       </div>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Star, CheckCircle2, MessageSquare } from 'lucide-react';
 import { ALL_REVIEWS } from '../data/reviewsData';
 import { apiRequest } from '../api/client';
+import CountryFlag from './CountryFlag';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -52,7 +53,7 @@ const ReviewCard = ({ item }) => (
       <div className="flex items-center justify-between mb-3">
         <StarRating rating={item.rating || 5} />
         <span className="inline-flex items-center gap-1.5 text-xs font-extrabold px-3 py-1 rounded-full bg-[#200d36] border border-lazyAccent/30 text-white shadow-inner">
-          <span>{item.flag || '🇺🇸'}</span>
+          <CountryFlag country={item.country} flag={item.flag} className="w-4 h-3 rounded-xs object-cover flex-shrink-0 shadow-xs" />
           <span>{item.country || 'USA'}</span>
         </span>
       </div>
