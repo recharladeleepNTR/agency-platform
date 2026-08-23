@@ -48,15 +48,15 @@ const Navbar = () => {
         <div className="container mx-auto px-5 sm:px-8 h-20 md:h-24 flex items-center justify-between">
 
           {/* Left — Logo */}
-          <Link to="/" className="flex items-center gap-2.5 group justify-self-start">
+          <Link to="/" className="flex items-center gap-2.5 justify-self-start">
             <motion.img
               src="/lazydition_logo.png"
               alt="Lazydition Logo"
-              whileHover={{ scale: 1.12, rotate: -4 }}
+              whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-              className="w-11 h-11 object-contain filter drop-shadow-[0_0_15px_rgba(148,148,255,0.65)]"
+              className="w-11 h-11 object-contain"
             />
-            <span className="text-2xl font-extrabold tracking-tight text-white group-hover:text-lazyAccent transition-colors">
+            <span className="text-2xl font-extrabold tracking-tight text-white">
               lazydition
             </span>
           </Link>
