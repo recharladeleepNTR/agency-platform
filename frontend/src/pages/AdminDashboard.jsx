@@ -153,34 +153,14 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteInquiry = async (id) => {
-    const target = inquiries.find(i => (i._id || i.id) === id);
     const updatedList = inquiries.filter(i => (i._id || i.id) !== id);
     setInquiries(updatedList);
 
     try {
-      const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_DELETED') || '[]');
-      if (!deletedIds.includes(id)) deletedIds.push(id);
-      if (target && target.email) {
-        const key = `${target.name}_${target.email}`;
-        if (!deletedIds.includes(key)) deletedIds.push(key);
-      }
-      localStorage.setItem('LAZYDITION_SYSTEM_DELETED', JSON.stringify(deletedIds));
-
       const stored = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
-      const filtered = stored.filter(i => (i._id || i.id) !== id && !(target && i.email === target.email && i.name === target.name));
+      const filtered = stored.filter(i => (i._id || i.id) !== id);
       localStorage.setItem('LAZYDITION_SYSTEM_INQUIRIES', JSON.stringify(filtered));
     } catch {}
-
-    // Direct 24/7 Cloud DB Update
-    try {
-      await fetch('https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: 'Lazydition Inquiries Store', data: { inquiries: updatedList } })
-      });
-    } catch (e) {
-      console.error('[Cloud Delete Sync Error]:', e);
-    }
 
     try {
       await fetch(`/api/inquiries?id=${id}`, { method: 'DELETE' });
@@ -318,7 +298,12 @@ const AdminDashboard = () => {
   /* ── GUARANTEED FETCH INQUIRIES FROM VERCEL CLOUD API & LOCAL STORAGE ── */
   const fetchInquiries = async () => {
     try {
-      const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_DELETED') || '[]');
+      // Clear stale local blacklist keys on load
+      try {
+        localStorage.removeItem('LAZYDITION_SYSTEM_DELETED');
+        localStorage.removeItem('LAZYDITION_DELETED_INQUIRIES');
+      } catch {}
+
       let items = [];
 
       // 1. Fetch from 24/7 Universal Cloud API (/api/inquiries)
@@ -344,14 +329,7 @@ const AdminDashboard = () => {
         });
       } catch {}
 
-      // 3. Strict filter out deleted items
-      const cleanItems = items.filter(i => {
-        const id = i._id || i.id;
-        const key = `${i.name}_${i.email}`;
-        return !deletedIds.includes(id) && !deletedIds.includes(key);
-      });
-
-      setInquiries(cleanItems);
+      setInquiries(items);
     } catch (e) {
       console.error('Error in fetchInquiries:', e);
     }
