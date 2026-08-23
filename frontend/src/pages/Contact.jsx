@@ -114,22 +114,23 @@ const Contact = () => {
       console.error('Cloud submission fallback error:', err);
     }
 
-    // 3. Post to 24/7 Cloud Database so Admin Dashboard sees ALL form submissions worldwide from any device
+    // 3. Post to 24/7 Vercel Serverless Cloud API & Local Sync
     try {
-      await fetch('https://api.restful-api.dev/objects', {
+      await fetch('/api/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: 'LazyditionInquiry',
-          data: {
-            ...payload,
-            createdAt: new Date().toISOString()
-          }
-        })
+        body: JSON.stringify(payload)
       });
     } catch (e) {
-      console.error('Cloud Database store error:', e);
+      console.error('Cloud DB endpoint error:', e);
     }
+
+    // Save backup locally to browser storage
+    try {
+      const stored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
+      stored.unshift({ _id: 'local_' + Date.now(), ...payload, createdAt: new Date().toISOString() });
+      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(stored));
+    } catch {}
 
     // Guarantee success UI screen for user so visitor is never shown an error
     setSubmitted(true);
