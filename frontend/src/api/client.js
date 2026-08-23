@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const API_BASE_URLS = [
   import.meta.env.VITE_API_URL,
+  'http://172.16.15.66:5001/api',
   'http://localhost:5001/api',
   'http://127.0.0.1:5001/api',
   'http://localhost:5000/api',
