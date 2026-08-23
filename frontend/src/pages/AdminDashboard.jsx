@@ -152,11 +152,35 @@ const AdminDashboard = () => {
   const handleDeleteInquiry = (id) => {
     setInquiries(prev => prev.filter(i => (i._id || i.id) !== id));
     try {
-      const stored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
+      const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
       const filtered = stored.filter(i => (i._id || i.id) !== id);
-      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(filtered));
+      localStorage.setItem('LAZYDITION_INQUIRIES_V1', JSON.stringify(filtered));
+
+      const legacyStored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
+      const legacyFiltered = legacyStored.filter(i => (i._id || i.id) !== id);
+      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(legacyFiltered));
     } catch {}
     showToast('🗑️ Inquiry deleted');
+  };
+
+  const handleGenerateSyncLink = () => {
+    try {
+      const v1List = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
+      const legacyList = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
+      const allLocal = [...v1List, ...legacyList];
+      const dataToSync = allLocal.length > 0 ? allLocal : inquiries;
+      if (!dataToSync || dataToSync.length === 0) {
+        showToast('⚠️ No inquiries stored on this device to sync');
+        return;
+      }
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(dataToSync))));
+      const syncUrl = `${window.location.origin}/admin?sync_data=${encoded}`;
+      navigator.clipboard.writeText(syncUrl);
+      showToast('📋 1-Click Sync Link copied! Open link on laptop/phone to sync instantly!');
+    } catch (e) {
+      console.error(e);
+      showToast('❌ Error generating sync link');
+    }
   };
 
   useEffect(() => {
@@ -202,40 +226,25 @@ const AdminDashboard = () => {
     }
   };
 
-  /* Fetch Applications directly from 24/7 KVDB Cloud DB + Vercel Serverless + Local DB + Browser Backup */
+  /* Fetch Applications from all endpoints (Serverless API + Local Network IP + Localhost + Local Storage Keys) */
   const fetchInquiries = async () => {
     try {
       let combined = [];
 
-      // 1. Fetch from 24/7 KVDB Cloud DB (https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries)
+      // 1. Fetch from Vercel Serverless Endpoint (/api/inquiries)
       try {
-        const cloudRes = await fetch('https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries');
-        if (cloudRes.ok) {
-          const cloudData = await cloudRes.json();
-          if (Array.isArray(cloudData)) {
-            combined = [...cloudData];
+        const res = await fetch('/api/inquiries');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data && Array.isArray(json.data)) {
+            combined = [...json.data];
           }
         }
       } catch (e) {
-        console.error('Error fetching KVDB cloud inquiries:', e);
+        console.error('[Sync Error] Could not fetch from /api/inquiries:', e);
       }
 
-      // 2. Fetch from Vercel Serverless /api/inquiries fallback
-      try {
-        const serverlessRes = await fetch('/api/inquiries');
-        if (serverlessRes.ok) {
-          const sJson = await serverlessRes.json();
-          if (sJson.data && Array.isArray(sJson.data)) {
-            sJson.data.forEach(item => {
-              if (!combined.some(i => i.email === item.email && i.name === item.name)) {
-                combined.push(item);
-              }
-            });
-          }
-        }
-      } catch {}
-
-      // 3. Fetch from Local Backend SQLite DB if running
+      // 2. Fetch from Local/Network Backend SQLite Database API (apiRequest -> http://172.16.15.66:5001 & localhost:5001)
       try {
         const r = await apiRequest('GET', '/applications');
         if (r.data && Array.isArray(r.data)) {
@@ -245,21 +254,45 @@ const AdminDashboard = () => {
             }
           });
         }
-      } catch {}
+      } catch (e) {
+        console.error('[Sync Error] Could not fetch from local backend API:', e);
+      }
 
-      // 4. Fetch from browser local storage backup
+      // 3. Fetch from device local storage (LAZYDITION_INQUIRIES_V1 & legacy keys)
       try {
-        const localStored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
-        localStored.forEach(item => {
+        const v1List = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
+        const legacyList = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
+        [...v1List, ...legacyList].forEach(item => {
           if (!combined.some(i => i.email === item.email && i.name === item.name)) {
             combined.unshift(item);
           }
         });
-      } catch {}
+      } catch (e) {
+        console.error('[Sync Error] Could not read local storage:', e);
+      }
+
+      // 4. Auto-import URL query param sync code if present (e.g. ?sync_data=...)
+      try {
+        const searchParams = new URLSearchParams(window.location.search);
+        const syncData = searchParams.get('sync_data');
+        if (syncData) {
+          const decoded = JSON.parse(decodeURIComponent(escape(atob(syncData))));
+          if (Array.isArray(decoded)) {
+            decoded.forEach(item => {
+              if (!combined.some(i => i.email === item.email && i.name === item.name)) {
+                combined.unshift(item);
+              }
+            });
+            showToast('✅ Cross-device inquiries synced via link!');
+          }
+        }
+      } catch (e) {
+        console.error('[Sync Link Error] Could not parse URL sync code:', e);
+      }
 
       setInquiries(combined);
     } catch (e) {
-      console.error('Error fetching applications from DB:', e);
+      console.error('Error in fetchInquiries:', e);
     }
   };
 
@@ -651,6 +684,13 @@ const AdminDashboard = () => {
                   <p className="text-xs text-lazyAccent font-bold">All form submissions & email inquiries synced live</p>
                 </div>
                 <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleGenerateSyncLink}
+                    title="Generate 1-Click Link to sync phone inquiries to laptop"
+                    className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-[#180926] border border-lazyAccent/40 hover:bg-lazyAccent/20 text-lazyAccent transition-all shadow-sm"
+                  >
+                    <span>📱 Copy 1-Click Sync Link</span>
+                  </button>
                   <button
                     onClick={fetchInquiries}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-[#180926] border border-white/15 hover:border-lazyAccent text-white transition-all shadow-sm"

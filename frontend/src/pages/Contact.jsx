@@ -83,43 +83,42 @@ const Contact = () => {
       _subject: `New Client Application from ${form.name} (${form.country})`
     };
 
-    let submittedSuccessfully = false;
-
-    // 1. Try local backend DB if laptop is open
+    // 1. Try local/network backend DB API
     try {
       await apiRequest('POST', '/applications', payload);
-      submittedSuccessfully = true;
     } catch (err) {
-      console.error('[Network Warning] Backend API submission failed. Falling back to local & cloud storage sync.', err?.message || err);
+      console.error('[Network Warning] Backend API submission failed:', err?.message || err);
     }
 
-    // 2. Post to 24/7 Cloud Database (KVDB.io) so ALL devices (phone, laptop, tablet) stay 100% in sync
+    // 2. Post to Vercel Serverless Endpoint (/api/inquiries)
     try {
-      const getRes = await fetch('https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries');
-      let currentList = [];
-      if (getRes.ok) {
-        currentList = await getRes.json();
-        if (!Array.isArray(currentList)) currentList = [];
-      }
-      const newEntry = { _id: 'inq_' + Date.now(), ...payload, createdAt: new Date().toISOString() };
-      currentList.unshift(newEntry);
-      await fetch('https://kvdb.io/3fKpiMFum8JtXUEMVxdtiw/inquiries', {
-        method: 'PUT',
+      await fetch('/api/inquiries', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentList)
+        body: JSON.stringify(payload)
       });
-    } catch (e) {
-      console.error('[Cloud Sync Warning] Could not sync inquiry to cloud KV store:', e?.message || e);
+    } catch (err) {
+      console.error('[Serverless Endpoint Warning] Could not post to /api/inquiries:', err?.message || err);
     }
 
-    // Save backup locally to browser storage
+    // 3. Save to standardized device local storage (LAZYDITION_INQUIRIES_V1 & legacy fallback)
     try {
-      console.error('[LocalStorage Sync] Storing submission backup to local device storage.');
-      const stored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
-      stored.unshift({ _id: 'local_' + Date.now(), ...payload, createdAt: new Date().toISOString() });
-      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(stored));
+      const entry = {
+        _id: 'inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
+        ...payload,
+        createdAt: new Date().toISOString(),
+        status: 'New'
+      };
+      
+      const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
+      stored.unshift(entry);
+      localStorage.setItem('LAZYDITION_INQUIRIES_V1', JSON.stringify(stored));
+
+      const legacyStored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
+      legacyStored.unshift(entry);
+      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(legacyStored));
     } catch (err) {
-      console.error('[LocalStorage Error] Failed to write fallback to local storage:', err);
+      console.error('[LocalStorage Error] Failed to write to local storage:', err);
     }
 
     // Guarantee success UI screen for user so visitor is never shown an error
