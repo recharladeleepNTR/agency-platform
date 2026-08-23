@@ -1,6 +1,15 @@
 import axios from 'axios';
 
-export const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001';
+const getBaseUrl = () => {
+  let envUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5001').trim();
+  envUrl = envUrl.replace(/\/+$/, '');
+  if (!envUrl.endsWith('/api')) {
+    envUrl += '/api';
+  }
+  return envUrl;
+};
+
+export const BASE_URL = getBaseUrl();
 
 const isLocal = typeof window !== 'undefined' && (
   window.location.hostname === 'localhost' ||
@@ -8,7 +17,7 @@ const isLocal = typeof window !== 'undefined' && (
 );
 
 const API_BASE_URLS = [
-  BASE_URL.endsWith('/api') ? BASE_URL : `${BASE_URL}/api`,
+  BASE_URL,
   ...(isLocal ? ['http://localhost:5001/api', 'http://127.0.0.1:5001/api'] : [])
 ].filter(Boolean);
 
@@ -22,9 +31,11 @@ export const apiRequest = async (method, path, data = null, config = {}) => {
     delete requestConfig.headers['content-type'];
   }
 
+  const cleanPath = path.startsWith('/') ? path : `/${path}`;
+
   for (const baseUrl of API_BASE_URLS) {
     try {
-      const url = `${baseUrl}${path}`;
+      const url = `${baseUrl}${cleanPath}`;
       const res = await axios({
         method,
         url,
@@ -37,11 +48,11 @@ export const apiRequest = async (method, path, data = null, config = {}) => {
       return res;
     } catch (err) {
       lastError = err;
-      console.error(`[API Network Error] Connection failed to ${baseUrl}${path}:`, err.message || err);
+      console.error(`[API Network Error] Connection failed to ${baseUrl}${cleanPath}:`, err.message || err);
       if (err.response) throw err; // If server responded with status code 4xx/5xx, return error
     }
   }
-  console.error('[API Failure] All API base URLs exhausted without clean response. Falling back to local/cloud handlers.');
+  console.error('[API Failure] All API base URLs exhausted without clean response.');
   throw lastError;
 };
 

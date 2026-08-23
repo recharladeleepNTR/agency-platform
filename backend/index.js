@@ -12,13 +12,8 @@ const PORT = process.env.PORT || 5001;
 // Connect to MongoDB Atlas (Single Source of Truth)
 connectDB();
 
-// Permissive CORS middleware for dev and production
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
-}));
+// Permissive CORS middleware allowing Vercel and all external origins
+app.use(cors());
 
 // High payload limits for base64 uploading videos and high-res images (1000MB)
 app.use(express.json({ limit: '1000mb', parameterLimit: 1000000 }));
