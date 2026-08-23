@@ -108,40 +108,43 @@ const AdminDashboard = () => {
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
 
-  const handleAddManualInquiry = async (e) => {
+  /* ── 100% REBUILT FROM SCRATCH SYNCHRONOUS INQUIRIES ENGINE ── */
+  const handleAddInquiry = async (e) => {
     e.preventDefault();
     if (!inqName || !inqEmail) {
-      showToast('❌ Name and Email are required');
+      showToast('⚠️ Please enter Name & Email');
       return;
     }
 
-    const newInquiry = {
-      _id: 'inq_' + Date.now(),
+    const newItem = {
+      _id: 'inq_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6),
       name: inqName,
       email: inqEmail,
-      country: inqCountry || 'USA',
-      serviceType: inqService,
-      platform: inqPlatform,
-      contentDetails: 'Manual Entry',
-      volume: '1 Per week',
-      budget: 'Custom',
-      message: inqMessage || 'Client inquiry logged via Admin Portal.',
+      country: inqCountry || 'India',
+      serviceType: 'Direct Inquiry',
+      platform: 'Direct Admin Log',
+      message: inqMessage || 'Logged directly from Admin Dashboard',
       createdAt: new Date().toISOString(),
       status: 'New'
     };
 
+    setInquiries(prev => [newItem, ...prev]);
+
     try {
-      await apiRequest('POST', '/applications', newInquiry);
+      const stored = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
+      stored.unshift(newItem);
+      localStorage.setItem('LAZYDITION_SYSTEM_INQUIRIES', JSON.stringify(stored));
     } catch {}
 
     try {
-      const stored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
-      stored.unshift(newInquiry);
-      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(stored));
+      await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newItem)
+      });
     } catch {}
 
-    setInquiries(prev => [newInquiry, ...prev]);
-    showToast('✅ Inquiry saved to Admin Portal!');
+    showToast('✅ Inquiry saved!');
     setShowAddInquiryModal(false);
     setInqName('');
     setInqEmail('');
@@ -150,36 +153,28 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteInquiry = async (id) => {
-    const targetItem = inquiries.find(i => (i._id || i.id) === id);
+    const target = inquiries.find(i => (i._id || i.id) === id);
     setInquiries(prev => prev.filter(i => (i._id || i.id) !== id));
 
     try {
-      const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_DELETED_INQUIRIES') || '[]');
+      const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_DELETED') || '[]');
       if (!deletedIds.includes(id)) deletedIds.push(id);
-      if (targetItem && targetItem.email) {
-        const emailKey = `${targetItem.name}_${targetItem.email}`;
-        if (!deletedIds.includes(emailKey)) deletedIds.push(emailKey);
+      if (target && target.email) {
+        const key = `${target.name}_${target.email}`;
+        if (!deletedIds.includes(key)) deletedIds.push(key);
       }
-      localStorage.setItem('LAZYDITION_DELETED_INQUIRIES', JSON.stringify(deletedIds));
+      localStorage.setItem('LAZYDITION_SYSTEM_DELETED', JSON.stringify(deletedIds));
 
-      const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
-      const filtered = stored.filter(i => (i._id || i.id) !== id && !(targetItem && i.email === targetItem.email && i.name === targetItem.name));
-      localStorage.setItem('LAZYDITION_INQUIRIES_V1', JSON.stringify(filtered));
-
-      const legacyStored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
-      const legacyFiltered = legacyStored.filter(i => (i._id || i.id) !== id && !(targetItem && i.email === targetItem.email && i.name === targetItem.name));
-      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(legacyFiltered));
-    } catch {}
-
-    try {
-      await apiRequest('DELETE', `/applications/${id}`);
+      const stored = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
+      const filtered = stored.filter(i => (i._id || i.id) !== id && !(target && i.email === target.email && i.name === target.name));
+      localStorage.setItem('LAZYDITION_SYSTEM_INQUIRIES', JSON.stringify(filtered));
     } catch {}
 
     try {
       await fetch(`/api/inquiries?id=${id}`, { method: 'DELETE' });
     } catch {}
 
-    showToast('🗑️ Inquiry deleted permanently');
+    showToast('🗑️ Inquiry deleted');
   };
 
   const handleGenerateSyncLink = () => {
@@ -308,79 +303,47 @@ const AdminDashboard = () => {
     }
   };
 
-  /* Fetch Applications from all endpoints with deletedIds filtering */
+  /* ── 100% CLEAN FETCH INQUIRIES FROM CLOUD API & SYSTEM STORAGE ── */
   const fetchInquiries = async () => {
     try {
-      const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_DELETED_INQUIRIES') || '[]');
-      let combined = [];
+      // Clear legacy storage keys so old ghosts don't re-appear
+      try {
+        localStorage.removeItem('LAZYDITION_INQUIRIES_V1');
+        localStorage.removeItem('lazydition_local_inquiries');
+        localStorage.removeItem('LAZYDITION_DELETED_INQUIRIES');
+      } catch {}
 
-      // 1. Fetch from Vercel Serverless Endpoint (/api/inquiries)
+      const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_DELETED') || '[]');
+      let items = [];
+
+      // 1. Fetch from 24/7 Cloud API (/api/inquiries)
       try {
         const res = await fetch('/api/inquiries');
         if (res.ok) {
           const json = await res.json();
-          if (json.data && Array.isArray(json.data)) {
-            combined = [...json.data];
+          if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+            items = json.data;
           }
         }
-      } catch (e) {
-        console.error('[Sync Error] Could not fetch from /api/inquiries:', e);
+      } catch (err) {
+        console.error('Error querying /api/inquiries:', err);
       }
 
-      // 2. Fetch from Local/Network Backend SQLite Database API
-      try {
-        const r = await apiRequest('GET', '/applications');
-        if (r.data && Array.isArray(r.data)) {
-          r.data.forEach(item => {
-            if (!combined.some(i => (i._id || i.id) === (item._id || item.id) || (i.email === item.email && i.name === item.name))) {
-              combined.push(item);
-            }
-          });
-        }
-      } catch (e) {
-        console.error('[Sync Error] Could not fetch from local backend API:', e);
+      // 2. Fallback to clean local system storage
+      if (items.length === 0) {
+        try {
+          items = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
+        } catch {}
       }
 
-      // 3. Fetch from device local storage (LAZYDITION_INQUIRIES_V1 & legacy keys)
-      try {
-        const v1List = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
-        const legacyList = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
-        [...v1List, ...legacyList].forEach(item => {
-          if (!combined.some(i => (i._id || i.id) === (item._id || item.id) || (i.email === item.email && i.name === item.name))) {
-            combined.unshift(item);
-          }
-        });
-      } catch (e) {
-        console.error('[Sync Error] Could not read local storage:', e);
-      }
-
-      // 4. Auto-import URL query param sync code if present (e.g. ?sync_data=...)
-      try {
-        const searchParams = new URLSearchParams(window.location.search);
-        const syncData = searchParams.get('sync_data');
-        if (syncData) {
-          const decoded = JSON.parse(decodeURIComponent(escape(atob(syncData))));
-          if (Array.isArray(decoded)) {
-            decoded.forEach(item => {
-              if (!combined.some(i => (i._id || i.id) === (item._id || item.id) || (i.email === item.email && i.name === item.name))) {
-                combined.unshift(item);
-              }
-            });
-            showToast('✅ Cross-device inquiries synced via link!');
-          }
-        }
-      } catch (e) {
-        console.error('[Sync Link Error] Could not parse URL sync code:', e);
-      }
-
-      // 5. Filter out deleted items permanently by ID or name_email combo
-      const finalInquiries = combined.filter(item => {
-        const itemId = item._id || item.id;
-        const emailKey = `${item.name}_${item.email}`;
-        return !deletedIds.includes(itemId) && !deletedIds.includes(emailKey);
+      // 3. Strict filter out deleted items
+      const cleanItems = items.filter(i => {
+        const id = i._id || i.id;
+        const key = `${i.name}_${i.email}`;
+        return !deletedIds.includes(id) && !deletedIds.includes(key);
       });
 
-      setInquiries(finalInquiries);
+      setInquiries(cleanItems);
     } catch (e) {
       console.error('Error in fetchInquiries:', e);
     }

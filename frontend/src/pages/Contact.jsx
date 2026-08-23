@@ -88,7 +88,7 @@ const Contact = () => {
       status: 'New'
     };
 
-    // 1. Post to 24/7 Cloud Database (/api/inquiries) so ALL devices display it live in Admin Dashboard
+    // 1. Post to 24/7 Universal Cloud Endpoint (/api/inquiries)
     try {
       await fetch('/api/inquiries', {
         method: 'POST',
@@ -96,10 +96,10 @@ const Contact = () => {
         body: JSON.stringify(payload)
       });
     } catch (err) {
-      console.error('[Cloud DB Warning] Could not post to /api/inquiries:', err);
+      console.error('[Cloud API Warning]:', err);
     }
 
-    // 2. Silent Background Email Notification (FormSubmit & Web3Forms)
+    // 2. Background Email Delivery (lazydition@gmail.com)
     try {
       await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
         method: 'POST',
@@ -108,19 +108,11 @@ const Contact = () => {
       });
     } catch {}
 
+    // 3. Clean Device Local Storage
     try {
-      await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify({ access_key: '27671df2-ea9a-414e-8d96-9ac61d2e3cde', ...payload, subject: `New Application from ${form.name}` })
-      });
-    } catch {}
-
-    // 3. Local Storage Backup
-    try {
-      const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
+      const stored = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
       stored.unshift(payload);
-      localStorage.setItem('LAZYDITION_INQUIRIES_V1', JSON.stringify(stored));
+      localStorage.setItem('LAZYDITION_SYSTEM_INQUIRIES', JSON.stringify(stored));
     } catch {}
 
     setSubmitted(true);
