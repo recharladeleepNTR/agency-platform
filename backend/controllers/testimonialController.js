@@ -1,142 +1,69 @@
 const asyncHandler = require('express-async-handler');
-const mongoose = require('mongoose');
 const Testimonial = require('../models/Testimonial');
 
-let memoryTestimonials = [];
-
-const isSameItem = (a, bTarget) => {
-  if (!a || !bTarget) return false;
-  const idA = String(a._id || a.id || a.name || '').trim().toLowerCase();
-  const idB = typeof bTarget === 'object'
-    ? String(bTarget._id || bTarget.id || bTarget.name || '').trim().toLowerCase()
-    : String(bTarget).trim().toLowerCase();
-  return idA !== '' && idA === idB;
-};
-
-// @desc    Get all testimonials
+// @desc    Get all testimonials from MongoDB
 // @route   GET /api/testimonials
 // @access  Public
 const getTestimonials = asyncHandler(async (req, res) => {
-  try {
-    if (mongoose.connection.readyState === 1) {
-      const testimonials = await Testimonial.find({}).sort({ createdAt: -1 });
-      return res.json(testimonials || []);
-    }
-  } catch (err) {
-    console.log('DB Query fallback (testimonials):', err.message);
-  }
-  res.json(memoryTestimonials);
+  const testimonials = await Testimonial.find({}).sort({ createdAt: -1 });
+  res.json(testimonials || []);
 });
 
-// @desc    Create new testimonial
+// @desc    Create new testimonial in MongoDB
 // @route   POST /api/testimonials
 // @access  Private (admin)
 const createTestimonial = asyncHandler(async (req, res) => {
   const { name, role, country, rating, text } = req.body;
 
-  const newReview = {
-    _id: 't-' + Date.now(),
+  const testimonial = await Testimonial.create({
     name: name || 'Verified Creator',
     role: role || '',
     country: country || '',
     rating: rating || 5,
     text: text || 'Great service!',
-  };
+  });
 
-  try {
-    if (mongoose.connection.readyState === 1) {
-      const testimonial = await Testimonial.create({
-        name: newReview.name,
-        role: newReview.role,
-        country: newReview.country,
-        rating: newReview.rating,
-        text: newReview.text,
-      });
-      memoryTestimonials = [testimonial, ...memoryTestimonials.filter(t => !isSameItem(t, testimonial._id))];
-      return res.status(201).json(testimonial);
-    }
-  } catch (err) {
-    console.log('DB Create fallback (testimonial):', err.message);
-  }
-
-  memoryTestimonials = [newReview, ...memoryTestimonials.filter(t => !isSameItem(t, newReview._id))];
-  return res.status(201).json(newReview);
+  return res.status(201).json(testimonial);
 });
 
-// @desc    Update existing testimonial
+// @desc    Update existing testimonial in MongoDB
 // @route   PUT /api/testimonials/:id
 // @access  Private (admin)
 const updateTestimonial = asyncHandler(async (req, res) => {
   const { name, role, country, rating, text } = req.body;
   const targetId = req.params.id;
 
-  const updatedPayload = {
-    _id: targetId,
-    name, role, country, rating, text
-  };
-
-  try {
-    if (mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(targetId)) {
-      const testimonial = await Testimonial.findById(targetId);
-      if (testimonial) {
-        testimonial.name = name || testimonial.name;
-        testimonial.role = role !== undefined ? role : testimonial.role;
-        testimonial.country = country !== undefined ? country : testimonial.country;
-        testimonial.rating = rating || testimonial.rating;
-        testimonial.text = text || testimonial.text;
-        const updated = await testimonial.save();
-        
-        const idx = memoryTestimonials.findIndex(t => isSameItem(t, targetId));
-        if (idx !== -1) memoryTestimonials[idx] = updated;
-        return res.json(updated);
-      }
-    }
-  } catch (err) {
-    console.log('DB Update fallback (testimonial):', err.message);
+  const testimonial = await Testimonial.findById(targetId);
+  if (!testimonial) {
+    res.status(404);
+    throw new Error('Testimonial not found in MongoDB');
   }
 
-  const idx = memoryTestimonials.findIndex(t => isSameItem(t, targetId));
-  if (idx !== -1) {
-    memoryTestimonials[idx] = { ...memoryTestimonials[idx], ...updatedPayload };
-  }
+  testimonial.name = name || testimonial.name;
+  testimonial.role = role !== undefined ? role : testimonial.role;
+  testimonial.country = country !== undefined ? country : testimonial.country;
+  testimonial.rating = rating || testimonial.rating;
+  testimonial.text = text || testimonial.text;
 
-  res.json(updatedPayload);
+  const updated = await testimonial.save();
+  res.json(updated);
 });
 
-// @desc    Delete testimonial
+// @desc    Delete testimonial from MongoDB
 // @route   DELETE /api/testimonials/:id
 // @access  Private (admin)
 const deleteTestimonial = asyncHandler(async (req, res) => {
   const targetId = req.params.id;
-
-  try {
-    if (mongoose.connection.readyState === 1 && mongoose.Types.ObjectId.isValid(targetId)) {
-      const testimonial = await Testimonial.findById(targetId);
-      if (testimonial) {
-        await testimonial.deleteOne();
-      }
-    }
-  } catch (err) {
-    console.log('DB Delete fallback (testimonial):', err.message);
-  }
-
-  memoryTestimonials = memoryTestimonials.filter(t => !isSameItem(t, targetId));
-  res.json({ message: 'Testimonial removed', id: targetId });
+  await Testimonial.findByIdAndDelete(targetId);
+  res.json({ message: 'Testimonial removed from MongoDB', id: targetId });
 });
 
-// @desc    Clear all testimonials completely
+// @desc    Clear all testimonials completely from MongoDB
 // @route   DELETE /api/testimonials
 // @access  Private (admin)
 const clearAllTestimonials = asyncHandler(async (req, res) => {
-  try {
-    if (mongoose.connection.readyState === 1) {
-      await Testimonial.deleteMany({});
-    }
-  } catch (err) {
-    console.log('DB Purge Error:', err.message);
-  }
-  memoryTestimonials = [];
-  res.json({ message: 'All testimonials cleared' });
+  await Testimonial.deleteMany({});
+  res.json({ message: 'All testimonials cleared from MongoDB' });
 });
 
 module.exports = { getTestimonials, createTestimonial, updateTestimonial, deleteTestimonial, clearAllTestimonials };

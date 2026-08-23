@@ -1,15 +1,16 @@
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 require('dotenv').config();
 
-const PortfolioItem = require('./models/PortfolioItem');
-const Testimonial = require('./models/Testimonial');
+const connectDB = require('./config/db');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
+
+// Connect to MongoDB Atlas (Single Source of Truth)
+connectDB();
 
 // Permissive CORS middleware for dev and production
 app.use(cors({
@@ -72,23 +73,19 @@ app.get('/uploads/:filename', (req, res, next) => {
 // Serve local uploads statically fallback
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// SQLite Persistent Database Initialization
-require('./database/sqlite');
-
 // Routes
 app.use('/api/portfolio', require('./routes/portfolioRoutes'));
 app.use('/api/applications', require('./routes/applicationRoutes'));
 app.use('/api/testimonials', require('./routes/testimonialRoutes'));
 
 app.get('/', (req, res) => {
-  res.send('Agency Platform API is running on port 5001...');
+  res.send('Agency Platform API is running on port 5001 (MongoDB Atlas Active)...');
 });
 
 // Custom Error Handler
 app.use((err, req, res, next) => {
   const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  res.status(statusCode);
-  res.json({
+  res.status(statusCode).json({
     message: err.message,
     stack: process.env.NODE_ENV === 'production' ? null : err.stack,
   });
@@ -96,5 +93,5 @@ app.use((err, req, res, next) => {
 
 // Start Server listening on port 5001 (0.0.0.0 dual-stack)
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Agency Platform Backend Server running on port ${PORT} (0.0.0.0)`);
+  console.log(`🚀 Agency Platform Backend Server running on port ${PORT} (MongoDB Atlas Active)`);
 });

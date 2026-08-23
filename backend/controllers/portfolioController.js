@@ -1,13 +1,7 @@
 const asyncHandler = require('express-async-handler');
 const fs = require('fs');
 const path = require('path');
-const {
-  getAllItems,
-  getItemById,
-  insertItem,
-  deleteItem,
-  clearAllItems,
-} = require('../database/sqlite');
+const PortfolioItem = require('../models/PortfolioItem');
 
 // Helper to save base64 image & video strings as physical files in /uploads
 const saveBase64ToFile = (base64Str) => {
@@ -51,15 +45,15 @@ const saveBase64ToFile = (base64Str) => {
   }
 };
 
-// @desc    Get all portfolio items
+// @desc    Get all portfolio items from MongoDB
 // @route   GET /api/portfolio
 // @access  Public
 const getPortfolioItems = asyncHandler(async (req, res) => {
-  const items = getAllItems();
+  const items = await PortfolioItem.find({}).sort({ createdAt: -1 });
   res.json(items);
 });
 
-// @desc    Create new portfolio item
+// @desc    Create new portfolio item in MongoDB
 // @route   POST /api/portfolio
 // @access  Public / Private
 const uploadPortfolioItem = asyncHandler(async (req, res) => {
@@ -68,16 +62,16 @@ const uploadPortfolioItem = asyncHandler(async (req, res) => {
   let mediaPath = null;
   if (req.file) {
     mediaPath = `/uploads/${req.file.filename}`;
-    console.log(`🎬 Multer saved binary file to /uploads/${req.file.filename} (${(req.file.size / 1024 / 1024).toFixed(2)} MB)`);
   } else if (img || mediaUrl) {
     mediaPath = saveBase64ToFile(img || mediaUrl);
   } else {
     mediaPath = '/card_own_power.png';
   }
 
-  const newItemData = {
-    _id: 'p-' + Date.now(),
-    id: 'p-' + Date.now(),
+  const itemId = 'p-' + Date.now();
+  const newItem = await PortfolioItem.create({
+    _id: itemId,
+    id: itemId,
     title: title || 'Work Preview Item',
     subtitle: subtitle || '',
     ratio: ratio || 'Work Preview - Slot 1 (9:16)',
@@ -86,13 +80,12 @@ const uploadPortfolioItem = asyncHandler(async (req, res) => {
     isExclusive: isExclusive === 'true' || isExclusive === true,
     img: mediaPath,
     mediaUrl: mediaPath,
-  };
+  });
 
-  const saved = insertItem(newItemData);
-  res.status(201).json(saved);
+  res.status(201).json(newItem);
 });
 
-// @desc    Update existing portfolio item
+// @desc    Update existing portfolio item in MongoDB
 // @route   PUT /api/portfolio/:id
 // @access  Public / Private
 const updatePortfolioItem = asyncHandler(async (req, res) => {
@@ -102,45 +95,50 @@ const updatePortfolioItem = asyncHandler(async (req, res) => {
   let mediaPath = null;
   if (req.file) {
     mediaPath = `/uploads/${req.file.filename}`;
-    console.log(`🎬 Multer replaced binary file to /uploads/${req.file.filename} (${(req.file.size / 1024 / 1024).toFixed(2)} MB)`);
   } else if (img || mediaUrl) {
     mediaPath = saveBase64ToFile(img || mediaUrl);
   }
 
-  let existingItem = getItemById(targetId);
+  const existingItem = await PortfolioItem.findOne({ $or: [{ _id: targetId }, { id: targetId }] });
 
   const updatedFields = {
-    _id: targetId,
-    id: targetId,
     title: title || (existingItem ? existingItem.title : 'Work Preview Item'),
     subtitle: subtitle !== undefined ? subtitle : (existingItem ? existingItem.subtitle : ''),
     ratio: ratio || (existingItem ? existingItem.ratio : 'Work Preview - Slot 1 (9:16)'),
     category: category || (existingItem ? existingItem.category : 'Work Preview'),
     tag: tag || category || (existingItem ? existingItem.tag : 'Work Preview'),
     isExclusive: isExclusive !== undefined ? (isExclusive === 'true' || isExclusive === true) : (existingItem ? existingItem.isExclusive : false),
-    img: mediaPath || (existingItem ? (existingItem.img || existingItem.mediaUrl) : '/card_own_power.png'),
-    mediaUrl: mediaPath || (existingItem ? (existingItem.mediaUrl || existingItem.img) : '/card_own_power.png'),
   };
 
-  const saved = insertItem(updatedFields);
-  res.json(saved);
+  if (mediaPath) {
+    updatedFields.img = mediaPath;
+    updatedFields.mediaUrl = mediaPath;
+  }
+
+  const updatedItem = await PortfolioItem.findOneAndUpdate(
+    { $or: [{ _id: targetId }, { id: targetId }] },
+    { $set: updatedFields },
+    { new: true, upsert: true }
+  );
+
+  res.json(updatedItem);
 });
 
-// @desc    Delete portfolio item
+// @desc    Delete portfolio item from MongoDB
 // @route   DELETE /api/portfolio/:id
 // @access  Public / Private
 const deletePortfolioItem = asyncHandler(async (req, res) => {
   const targetId = req.params.id;
-  deleteItem(targetId);
-  res.json({ message: 'Portfolio item removed', id: targetId });
+  await PortfolioItem.deleteOne({ $or: [{ _id: targetId }, { id: targetId }] });
+  res.json({ message: 'Portfolio item removed from MongoDB', id: targetId });
 });
 
-// @desc    Clear all portfolio items completely
+// @desc    Clear all portfolio items from MongoDB
 // @route   DELETE /api/portfolio
 // @access  Public / Private
 const clearAllPortfolioItems = asyncHandler(async (req, res) => {
-  clearAllItems();
-  res.json({ message: 'Portfolio reset to default SQLite items' });
+  await PortfolioItem.deleteMany({});
+  res.json({ message: 'Portfolio items cleared from MongoDB' });
 });
 
 module.exports = {
