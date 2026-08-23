@@ -1,5 +1,5 @@
 // 24/7 Guaranteed Universal Cloud & Repository Engine for Lazydition Inquiries
-import defaultInquiries from '../../data/inquiries.json';
+import defaultInquiries from '../src/data/inquiries.json';
 
 let memoryStore = [...defaultInquiries];
 
