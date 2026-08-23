@@ -89,15 +89,17 @@ const Navbar = () => {
 
           {/* Right — CTA + Mobile toggle */}
           <div className="flex items-center justify-end">
-            <div className="hidden md:block">
-              <Link
-                to="/contact"
-                id="navbar-cta"
-                className="inline-flex items-center gap-2 bg-gradient-to-r from-lazyAccent to-lazyDeep text-white text-base font-bold px-7 py-3 rounded-full transition-all duration-300 hover:shadow-[0_0_24px_rgba(148,148,255,0.4)] hover:scale-105"
-              >
-                Start a Project
-              </Link>
-            </div>
+            {location.pathname !== '/contact' && (
+              <div className="hidden md:block">
+                <Link
+                  to="/contact"
+                  id="navbar-cta"
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-lazyAccent to-lazyDeep text-white text-base font-bold px-7 py-3 rounded-full transition-all duration-300 hover:shadow-[0_0_24px_rgba(148,148,255,0.4)] hover:scale-105"
+                >
+                  Start a Project
+                </Link>
+              </div>
+            )}
             {/* Mobile Toggle */}
             <button
               id="navbar-mobile-toggle"

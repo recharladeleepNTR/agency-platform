@@ -18,31 +18,36 @@ const socials = [
 ];
 
 const Footer = () => {
+  const location = useLocation();
+  const isContactPage = location.pathname === '/contact';
+
   return (
     <footer className="bg-lazyBg mt-auto">
-      {/* CTA Strip */}
-      <div>
-        <div className="container mx-auto px-6 py-16 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div>
-            <p className="text-xs tracking-[0.2em] uppercase text-lazyAccent font-semibold mb-3">Let's work together !</p>
-            <h2 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-lazyText">
-              begin your project{' '}
-              <span className="bg-gradient-to-r from-lazyAccent to-lazyDeep bg-clip-text text-transparent">
-                with us
-              </span>
-            </h2>
+      {/* CTA Strip (Hidden on Contact page) */}
+      {!isContactPage && (
+        <div>
+          <div className="container mx-auto px-6 py-16 flex flex-col md:flex-row items-center justify-between gap-8">
+            <div>
+              <p className="text-xs tracking-[0.2em] uppercase text-lazyAccent font-semibold mb-3">Let's work together !</p>
+              <h2 className="text-3xl md:text-4xl font-extrabold tracking-tighter text-lazyText">
+                begin your project{' '}
+                <span className="bg-gradient-to-r from-lazyAccent to-lazyDeep bg-clip-text text-transparent">
+                  with us
+                </span>
+              </h2>
+            </div>
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
+              <Link
+                to="/contact"
+                id="footer-cta-btn"
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-lazyAccent to-lazyDeep text-white font-bold px-8 py-4 rounded-full shadow-[0_0_32px_rgba(148,148,255,0.3)] hover:shadow-[0_0_48px_rgba(148,148,255,0.5)] transition-shadow"
+              >
+                Start a Project <ArrowUpRight className="w-4 h-4" />
+              </Link>
+            </motion.div>
           </div>
-          <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-            <Link
-              to="/contact"
-              id="footer-cta-btn"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-lazyAccent to-lazyDeep text-white font-bold px-8 py-4 rounded-full shadow-[0_0_32px_rgba(148,148,255,0.3)] hover:shadow-[0_0_48px_rgba(148,148,255,0.5)] transition-shadow"
-            >
-              Start a Project <ArrowUpRight className="w-4 h-4" />
-            </Link>
-          </motion.div>
         </div>
-      </div>
+      )}
 
       {/* Main Footer */}
       <div className="container mx-auto px-6 py-16">
