@@ -95,13 +95,17 @@ const Contact = () => {
 
     // 2. Always submit via 24/7 Cloud Form Service to lazydition@gmail.com
     try {
-      const cloudRes = await fetch('https://formsubmit.co/ajax/27671df2ea9ab14e8d969ac61d2e3cde', {
+      const cloudRes = await fetch('https://formsubmit.co/ajax/lazydition@gmail.com', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({
+          ...payload,
+          _captcha: 'false',
+          _template: 'table'
+        })
       });
       if (cloudRes.ok) {
         submittedSuccessfully = true;
