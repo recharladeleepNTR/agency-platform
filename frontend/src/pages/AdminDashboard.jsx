@@ -95,9 +95,69 @@ const AdminDashboard = () => {
   const [tRating, setTRating]         = useState(5);
   const [tText, setTText]             = useState('');
 
+  // Manual Inquiry Form State
+  const [showAddInquiryModal, setShowAddInquiryModal] = useState(false);
+  const [inqName, setInqName]         = useState('');
+  const [inqEmail, setInqEmail]       = useState('');
+  const [inqCountry, setInqCountry]   = useState('');
+  const [inqService, setInqService]   = useState('Short-form editing');
+  const [inqPlatform, setInqPlatform] = useState('YouTube');
+  const [inqMessage, setInqMessage]   = useState('');
+
   const nav = useNavigate();
 
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 3500); };
+
+  const handleAddManualInquiry = async (e) => {
+    e.preventDefault();
+    if (!inqName || !inqEmail) {
+      showToast('❌ Name and Email are required');
+      return;
+    }
+
+    const newInquiry = {
+      _id: 'inq_' + Date.now(),
+      name: inqName,
+      email: inqEmail,
+      country: inqCountry || 'USA',
+      serviceType: inqService,
+      platform: inqPlatform,
+      contentDetails: 'Manual Entry',
+      volume: '1 Per week',
+      budget: 'Custom',
+      message: inqMessage || 'Client inquiry logged via Admin Portal.',
+      createdAt: new Date().toISOString(),
+      status: 'New'
+    };
+
+    try {
+      await apiRequest('POST', '/applications', newInquiry);
+    } catch {}
+
+    try {
+      const stored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
+      stored.unshift(newInquiry);
+      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(stored));
+    } catch {}
+
+    setInquiries(prev => [newInquiry, ...prev]);
+    showToast('✅ Inquiry saved to Admin Portal!');
+    setShowAddInquiryModal(false);
+    setInqName('');
+    setInqEmail('');
+    setInqCountry('');
+    setInqMessage('');
+  };
+
+  const handleDeleteInquiry = (id) => {
+    setInquiries(prev => prev.filter(i => (i._id || i.id) !== id));
+    try {
+      const stored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
+      const filtered = stored.filter(i => (i._id || i.id) !== id);
+      localStorage.setItem('lazydition_local_inquiries', JSON.stringify(filtered));
+    } catch {}
+    showToast('🗑️ Inquiry deleted');
+  };
 
   useEffect(() => {
     try {
@@ -570,7 +630,132 @@ const AdminDashboard = () => {
           {/* ── INQUIRIES TAB ── */}
           {tab === 'inquiries' && (
             <div>
-              <h3 className="text-2xl font-black text-white mb-6 tracking-tight">Client Applications ({inquiries.length})</h3>
+              <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                <div>
+                  <h3 className="text-2xl font-black text-white tracking-tight">Client Applications ({inquiries.length})</h3>
+                  <p className="text-xs text-lazyAccent font-bold">All form submissions & email inquiries synced live</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={fetchInquiries}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold bg-[#180926] border border-white/15 hover:border-lazyAccent text-white transition-all shadow-sm"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" />
+                    <span>Refresh</span>
+                  </button>
+                  <button
+                    onClick={() => setShowAddInquiryModal(true)}
+                    className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black bg-lazyAccent hover:bg-lazyAccent/80 text-white transition-all shadow-[0_0_15px_rgba(148,148,255,0.4)]"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>+ Add Inquiry</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Add Manual Inquiry Modal */}
+              {showAddInquiryModal && (
+                <div className="mb-8 p-6 rounded-2xl bg-[#180926] border-2 border-lazyAccent/50 space-y-4 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <h4 className="text-base font-black text-white">Log / Add New Client Inquiry</h4>
+                    <button onClick={() => setShowAddInquiryModal(false)} className="text-white/50 hover:text-white">
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+                  <form onSubmit={handleAddManualInquiry} className="space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-xs font-bold text-lazyAccent block mb-1">Client Name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={inqName}
+                          onChange={e => setInqName(e.target.value)}
+                          className={inputCls}
+                          placeholder="e.g. John Doe"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-lazyAccent block mb-1">Email *</label>
+                        <input
+                          type="email"
+                          required
+                          value={inqEmail}
+                          onChange={e => setInqEmail(e.target.value)}
+                          className={inputCls}
+                          placeholder="john@example.com"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      <div>
+                        <label className="text-xs font-bold text-lazyAccent block mb-1">Country</label>
+                        <input
+                          type="text"
+                          value={inqCountry}
+                          onChange={e => setInqCountry(e.target.value)}
+                          className={inputCls}
+                          placeholder="United States"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-lazyAccent block mb-1">Service</label>
+                        <select
+                          value={inqService}
+                          onChange={e => setInqService(e.target.value)}
+                          className={inputCls}
+                        >
+                          <option value="Long-form editing">Long-form editing</option>
+                          <option value="Short-form editing">Short-form editing</option>
+                          <option value="Visual Design">Visual Design</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="text-xs font-bold text-lazyAccent block mb-1">Platform</label>
+                        <select
+                          value={inqPlatform}
+                          onChange={e => setInqPlatform(e.target.value)}
+                          className={inputCls}
+                        >
+                          <option value="YouTube">YouTube</option>
+                          <option value="Instagram">Instagram</option>
+                          <option value="TikTok">TikTok</option>
+                          <option value="Twitter / X">Twitter / X</option>
+                          <option value="Subscription based platform">Subscription based platform</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-bold text-lazyAccent block mb-1">Client Message / Notes</label>
+                      <textarea
+                        rows={3}
+                        value={inqMessage}
+                        onChange={e => setInqMessage(e.target.value)}
+                        className={inputCls}
+                        placeholder="Type or paste client inquiry notes..."
+                      />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowAddInquiryModal(false)}
+                        className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 text-white hover:bg-white/20"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-6 py-2 rounded-xl text-xs font-black bg-lazyAccent hover:bg-lazyAccent/80 text-white shadow-lg"
+                      >
+                        Save Inquiry
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
               {inquiries.length === 0 ? (
                 <div className="p-12 text-center rounded-2xl bg-[#180926] border border-white/10">
                   <Inbox className="w-10 h-10 text-lazyAccent/40 mx-auto mb-3" />
@@ -580,7 +765,7 @@ const AdminDashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {inquiries.map((app) => (
-                    <div key={app._id || app.id} className="p-6 rounded-2xl bg-[#180926] border border-white/10 space-y-3">
+                    <div key={app._id || app.id} className="p-6 rounded-2xl bg-[#180926] border border-white/10 space-y-3 group/card">
                       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
                         <div>
                           <span className="text-lg font-black text-white">{app.name}</span>
@@ -588,9 +773,18 @@ const AdminDashboard = () => {
                             {app.role || 'Creator'}
                           </span>
                         </div>
-                        <span className="text-xs text-white/50 font-mono">
-                          {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'Recent'}
-                        </span>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs text-white/50 font-mono">
+                            {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : 'Recent'}
+                          </span>
+                          <button
+                            onClick={() => handleDeleteInquiry(app._id || app.id)}
+                            className="p-1.5 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                            title="Delete Inquiry"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs text-white/80 font-medium">
