@@ -53,7 +53,23 @@ const createApplication = asyncHandler(async (req, res) => {
   // Trigger email notification to client's email address asynchronously
   sendInquiryEmail(req.body).catch(e => console.error('Email send warning:', e.message));
 
-  return res.status(201).json(savedApp);
+// @desc    Delete application
+// @route   DELETE /api/applications/:id
+// @access  Private (admin)
+const deleteApplication = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  
+  memoryApplications = memoryApplications.filter(app => (app._id || app.id) !== id);
+
+  try {
+    if (mongoose.connection.readyState === 1) {
+      await ClientApplication.findByIdAndDelete(id);
+    }
+  } catch (err) {
+    console.log('DB Delete fallback (application):', err.message);
+  }
+
+  return res.json({ success: true, id });
 });
 
-module.exports = { getApplications, createApplication };
+module.exports = { getApplications, createApplication, deleteApplication };

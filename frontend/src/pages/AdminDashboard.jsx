@@ -150,19 +150,24 @@ const AdminDashboard = () => {
   };
 
   const handleDeleteInquiry = async (id) => {
+    const targetItem = inquiries.find(i => (i._id || i.id) === id);
     setInquiries(prev => prev.filter(i => (i._id || i.id) !== id));
 
     try {
       const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_DELETED_INQUIRIES') || '[]');
       if (!deletedIds.includes(id)) deletedIds.push(id);
+      if (targetItem && targetItem.email) {
+        const emailKey = `${targetItem.name}_${targetItem.email}`;
+        if (!deletedIds.includes(emailKey)) deletedIds.push(emailKey);
+      }
       localStorage.setItem('LAZYDITION_DELETED_INQUIRIES', JSON.stringify(deletedIds));
 
       const stored = JSON.parse(localStorage.getItem('LAZYDITION_INQUIRIES_V1') || '[]');
-      const filtered = stored.filter(i => (i._id || i.id) !== id);
+      const filtered = stored.filter(i => (i._id || i.id) !== id && !(targetItem && i.email === targetItem.email && i.name === targetItem.name));
       localStorage.setItem('LAZYDITION_INQUIRIES_V1', JSON.stringify(filtered));
 
       const legacyStored = JSON.parse(localStorage.getItem('lazydition_local_inquiries') || '[]');
-      const legacyFiltered = legacyStored.filter(i => (i._id || i.id) !== id);
+      const legacyFiltered = legacyStored.filter(i => (i._id || i.id) !== id && !(targetItem && i.email === targetItem.email && i.name === targetItem.name));
       localStorage.setItem('lazydition_local_inquiries', JSON.stringify(legacyFiltered));
     } catch {}
 
@@ -368,10 +373,11 @@ const AdminDashboard = () => {
         console.error('[Sync Link Error] Could not parse URL sync code:', e);
       }
 
-      // 5. Filter out deleted items permanently
+      // 5. Filter out deleted items permanently by ID or name_email combo
       const finalInquiries = combined.filter(item => {
         const itemId = item._id || item.id;
-        return !deletedIds.includes(itemId);
+        const emailKey = `${item.name}_${item.email}`;
+        return !deletedIds.includes(itemId) && !deletedIds.includes(emailKey);
       });
 
       setInquiries(finalInquiries);
