@@ -88,15 +88,30 @@ const Contact = () => {
       status: 'New'
     };
 
-    // 1. Post to 24/7 Universal Cloud Endpoint (/api/inquiries)
+    // 1. Post to 24/7 Universal Cloud Database (/api/inquiries + Cloud Store Direct)
     try {
-      await fetch('/api/inquiries', {
+      const res = await fetch('/api/inquiries', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
+      if (!res.ok) throw new Error('Vercel api endpoint fallback trigger');
     } catch (err) {
-      console.error('[Cloud API Warning]:', err);
+      try {
+        const cloudRes = await fetch('https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b');
+        if (cloudRes.ok) {
+          const cloudData = await cloudRes.json();
+          const inquiriesList = (cloudData && cloudData.data && Array.isArray(cloudData.data.inquiries)) ? cloudData.data.inquiries : [];
+          inquiriesList.unshift(payload);
+          await fetch('https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name: 'Lazydition Inquiries Store', data: { inquiries: inquiriesList } })
+          });
+        }
+      } catch (e) {
+        console.error('[Direct Cloud DB Warning]:', e);
+      }
     }
 
     // 2. Background Email Delivery (lazydition@gmail.com)

@@ -154,7 +154,8 @@ const AdminDashboard = () => {
 
   const handleDeleteInquiry = async (id) => {
     const target = inquiries.find(i => (i._id || i.id) === id);
-    setInquiries(prev => prev.filter(i => (i._id || i.id) !== id));
+    const updatedList = inquiries.filter(i => (i._id || i.id) !== id);
+    setInquiries(updatedList);
 
     try {
       const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_DELETED') || '[]');
@@ -169,6 +170,17 @@ const AdminDashboard = () => {
       const filtered = stored.filter(i => (i._id || i.id) !== id && !(target && i.email === target.email && i.name === target.name));
       localStorage.setItem('LAZYDITION_SYSTEM_INQUIRIES', JSON.stringify(filtered));
     } catch {}
+
+    // Direct 24/7 Cloud DB Update
+    try {
+      await fetch('https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Lazydition Inquiries Store', data: { inquiries: updatedList } })
+      });
+    } catch (e) {
+      console.error('[Cloud Delete Sync Error]:', e);
+    }
 
     try {
       await fetch(`/api/inquiries?id=${id}`, { method: 'DELETE' });
@@ -303,40 +315,48 @@ const AdminDashboard = () => {
     }
   };
 
-  /* ── 100% CLEAN FETCH INQUIRIES FROM CLOUD API & SYSTEM STORAGE ── */
+  /* ── 100% REAL-TIME SYNCHRONOUS FETCH INQUIRIES FROM 24/7 CLOUD DB ── */
   const fetchInquiries = async () => {
     try {
-      // Clear legacy storage keys so old ghosts don't re-appear
-      try {
-        localStorage.removeItem('LAZYDITION_INQUIRIES_V1');
-        localStorage.removeItem('lazydition_local_inquiries');
-        localStorage.removeItem('LAZYDITION_DELETED_INQUIRIES');
-      } catch {}
-
       const deletedIds = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_DELETED') || '[]');
       let items = [];
 
-      // 1. Fetch from 24/7 Cloud API (/api/inquiries)
+      // 1. Primary: Direct 24/7 Universal Cloud DB
       try {
-        const res = await fetch('/api/inquiries');
-        if (res.ok) {
-          const json = await res.json();
-          if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-            items = json.data;
+        const cloudRes = await fetch('https://api.restful-api.dev/objects/ff8081819ff5b11001a02e0c367d001b');
+        if (cloudRes.ok) {
+          const cloudData = await cloudRes.json();
+          if (cloudData && cloudData.data && Array.isArray(cloudData.data.inquiries)) {
+            items = cloudData.data.inquiries;
           }
         }
       } catch (err) {
-        console.error('Error querying /api/inquiries:', err);
+        console.error('Error fetching direct cloud DB:', err);
       }
 
-      // 2. Fallback to clean local system storage
+      // 2. Secondary: Vercel Serverless /api/inquiries
+      if (items.length === 0) {
+        try {
+          const res = await fetch('/api/inquiries');
+          if (res.ok) {
+            const json = await res.json();
+            if (json.data && Array.isArray(json.data) && json.data.length > 0) {
+              items = json.data;
+            }
+          }
+        } catch (err) {
+          console.error('Error querying /api/inquiries:', err);
+        }
+      }
+
+      // 3. Fallback to clean local system storage
       if (items.length === 0) {
         try {
           items = JSON.parse(localStorage.getItem('LAZYDITION_SYSTEM_INQUIRIES') || '[]');
         } catch {}
       }
 
-      // 3. Strict filter out deleted items
+      // 4. Strict filter out deleted items
       const cleanItems = items.filter(i => {
         const id = i._id || i.id;
         const key = `${i.name}_${i.email}`;
