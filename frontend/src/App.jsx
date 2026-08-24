@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { useEffect, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -16,6 +16,44 @@ import AdminDashboard from './pages/AdminDashboard';
 import Login from './pages/Login';
 
 function App() {
+  useEffect(() => {
+    // Prevent right-click / contextmenu on images, videos, logos, and graphics
+    const handleContextMenu = (e) => {
+      const tag = e.target.tagName;
+      if (
+        tag === 'IMG' ||
+        tag === 'VIDEO' ||
+        tag === 'CANVAS' ||
+        tag === 'PICTURE' ||
+        e.target.closest('img') ||
+        e.target.closest('video') ||
+        e.target.closest('.protected-asset')
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    // Prevent dragging images or videos
+    const handleDragStart = (e) => {
+      const tag = e.target.tagName;
+      if (
+        tag === 'IMG' ||
+        tag === 'VIDEO' ||
+        e.target.closest('img') ||
+        e.target.closest('video')
+      ) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('dragstart', handleDragStart);
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('dragstart', handleDragStart);
+    };
+  }, []);
   return (
     <Router>
       <SmoothScroll>
