@@ -71,7 +71,58 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Routes
 app.use('/api/portfolio', require('./routes/portfolioRoutes'));
 app.use('/api/applications', require('./routes/applicationRoutes'));
+app.use('/api/inquiries', require('./routes/applicationRoutes'));
 app.use('/api/testimonials', require('./routes/testimonialRoutes'));
+
+// Temporary Live Diagnostic Check Endpoint
+app.get('/api/test-diagnostic', async (req, res) => {
+  try {
+    const mongoose = require('mongoose');
+    const ClientApplication = require('./models/ClientApplication');
+    const { sendInquiryEmail } = require('./config/mailer');
+
+    const dbConnected = mongoose.connection.readyState === 1;
+
+    const testDoc = await ClientApplication.create({
+      role: 'Diagnostic Test Role',
+      name: 'Diagnostic Route Test',
+      email: 'route-test@lazydition.com',
+      country: 'USA',
+      serviceType: 'Route Check',
+      platform: 'Web',
+      message: 'Testing live /api/test-diagnostic route',
+    });
+
+    const docCreated = Boolean(testDoc && testDoc._id);
+    await ClientApplication.findByIdAndDelete(testDoc._id);
+
+    const emailSent = await sendInquiryEmail({
+      role: 'Route Diagnostic',
+      name: 'Render Live Test',
+      email: 'live-test@lazydition.com',
+      country: 'USA',
+      serviceType: 'Live Diagnostic',
+      platform: 'Web App',
+      message: 'Render backend live diagnostic test succeeded!',
+    });
+
+    return res.json({
+      status: 'OK',
+      database: {
+        connected: dbConnected,
+        host: mongoose.connection.host,
+        crudTestPassed: docCreated,
+      },
+      email: {
+        notificationTarget: process.env.CLIENT_NOTIFICATION_EMAIL || 'lazydition@gmail.com',
+        testEmailSent: emailSent,
+      },
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    return res.status(500).json({ status: 'ERROR', error: err.message });
+  }
+});
 
 app.get('/', (req, res) => {
   res.send('Agency Platform API is running on port 5001 (MongoDB Atlas Active)...');
