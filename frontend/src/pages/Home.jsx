@@ -317,11 +317,16 @@ const Home = () => {
             className="max-w-3xl mx-auto text-center"
           >
             <motion.div variants={fadeUp} className="mb-2 flex justify-center">
-              <img
-                src="/shield_lock.png"
-                alt="Privacy Shield Lock"
-                className="w-36 h-36 md:w-44 md:h-44 lg:w-48 lg:h-48 object-contain filter drop-shadow-[0_0_35px_rgba(148,148,255,0.55)] hover:scale-105 transition-transform duration-300"
-              />
+              <div className="relative w-36 h-36 md:w-44 md:h-44 lg:w-48 lg:h-48">
+                <img
+                  src="/shield_lock.png"
+                  alt="Privacy Shield Lock"
+                  className="w-full h-full object-contain filter drop-shadow-[0_0_35px_rgba(148,148,255,0.55)] hover:scale-105 transition-transform duration-300 pointer-events-none select-none"
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
+                />
+                <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
+              </div>
             </motion.div>
             <motion.p variants={fadeUp} className="text-lazyAccent text-xs font-bold tracking-[0.2em] uppercase mb-3">
               Privacy and discretion

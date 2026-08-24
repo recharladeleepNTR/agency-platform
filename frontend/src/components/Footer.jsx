@@ -55,11 +55,16 @@ const Footer = () => {
           {/* Brand */}
           <div className="md:col-span-3">
             <div className="flex items-center gap-2.5 mb-5">
-              <img
-                src="/lazydition_logo.png"
-                alt="Lazydition Logo"
-                className="w-10 h-10 object-contain filter drop-shadow-[0_0_12px_rgba(148,148,255,0.6)]"
-              />
+              <div className="relative w-10 h-10">
+                <img
+                  src="/lazydition_logo.png"
+                  alt="Lazydition Logo"
+                  className="w-10 h-10 object-contain filter drop-shadow-[0_0_12px_rgba(148,148,255,0.6)] pointer-events-none select-none"
+                  draggable={false}
+                  onContextMenu={(e) => e.preventDefault()}
+                />
+                <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
+              </div>
               <span className="text-xl font-extrabold text-white">
                 lazydition
               </span>

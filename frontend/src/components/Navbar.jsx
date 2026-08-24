@@ -49,13 +49,16 @@ const Navbar = () => {
 
           {/* Left — Logo */}
           <Link to="/" className="flex items-center gap-2.5 justify-self-start">
-            <motion.img
-              src="/lazydition_logo.png"
-              alt="Lazydition Logo"
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-              className="w-11 h-11 object-contain"
-            />
+            <div className="relative w-11 h-11">
+              <img
+                src="/lazydition_logo.png"
+                alt="Lazydition Logo"
+                className="w-11 h-11 object-contain pointer-events-none select-none"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
+              />
+              <div className="absolute inset-0 z-20 bg-transparent select-none pointer-events-auto" onContextMenu={(e) => e.preventDefault()} />
+            </div>
             <span className="text-2xl font-extrabold tracking-tight text-white">
               lazydition
             </span>
