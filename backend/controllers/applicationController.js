@@ -16,9 +16,9 @@ const getApplications = asyncHandler(async (req, res) => {
 const createApplication = asyncHandler(async (req, res) => {
   const { role, name, email, country, serviceType, volume, budget, message, platform, contentDetails } = req.body;
 
-  // 1. Strict MongoDB Save (No silent try/catch, no fallbacks)
+  // 1. Save document to MongoDB Atlas (Single Source of Truth)
   const savedApp = await ClientApplication.create({
-    role,
+    role: role || 'Creator',
     name,
     email,
     country,
@@ -30,8 +30,14 @@ const createApplication = asyncHandler(async (req, res) => {
     contentDetails,
   });
 
-  // 2. Trigger email ONLY IF database save succeeded
-  sendInquiryEmail(req.body).catch(e => console.error('Email send warning:', e.message));
+  // 2. Await Nodemailer SMTP Email Dispatch before sending HTTP 201 response
+  try {
+    const appPayload = savedApp.toObject ? savedApp.toObject() : { ...req.body, _id: savedApp._id };
+    const emailResult = await sendInquiryEmail(appPayload);
+    console.log(`[Email Dispatch Status for ${email}]: ${emailResult ? 'SUCCESS' : 'FAILED'}`);
+  } catch (emailErr) {
+    console.error('❌ Error sending inquiry notification email:', emailErr.message || emailErr);
+  }
 
   return res.status(201).json(savedApp);
 });
