@@ -303,13 +303,18 @@ const AdminDashboard = () => {
       }
     } catch (e) {
       console.error('Error fetching applications from MongoDB:', e);
+      if (e.response && (e.response.status === 401 || e.response.status === 403)) {
+        localStorage.removeItem('adminToken');
+        nav('/login');
+        return;
+      }
       setInquiries([]);
     }
   };
 
   const handleSignOut = () => {
     try { localStorage.removeItem('adminToken'); } catch {}
-    nav('/admin-login');
+    nav('/login');
   };
 
   const [newFileObj, setNewFileObj] = useState(null);

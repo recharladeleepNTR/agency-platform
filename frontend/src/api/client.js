@@ -24,8 +24,15 @@ const API_BASE_URLS = [
 export const apiRequest = async (method, path, data = null, config = {}) => {
   let lastError = null;
 
+  const token = typeof window !== 'undefined' ? localStorage.getItem('adminToken') : null;
+  const headers = { ...config.headers };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
   // Clean config headers for FormData to let browser set boundary parameter automatically
-  const requestConfig = { ...config };
+  const requestConfig = { ...config, headers };
   if (data instanceof FormData && requestConfig.headers) {
     delete requestConfig.headers['Content-Type'];
     delete requestConfig.headers['content-type'];

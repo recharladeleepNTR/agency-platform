@@ -30,21 +30,15 @@ const Login = () => {
 
     try {
       const res = await apiRequest('POST', '/auth/login', { email: cleanEmail, password });
-      if (res.data && res.data.success) {
-        localStorage.setItem('adminToken', 'true');
+      if (res.data && res.data.success && res.data.token) {
+        localStorage.setItem('adminToken', res.data.token);
         setLoading(false);
         navigate('/admin');
         return;
       }
     } catch (err) {
-      console.log('API login notice:', err);
-    }
-
-    // Direct credential check fallback for seamless access
-    if (cleanEmail === 'lazydition@gmail.com' && password === 'adminsuhas007') {
-      localStorage.setItem('adminToken', 'true');
+      setError(err.response?.data?.message || 'Invalid User ID or Password.');
       setLoading(false);
-      navigate('/admin');
       return;
     }
 
@@ -94,8 +88,9 @@ const Login = () => {
 
       if (res.data && res.data.success) {
         setMessage('🎉 Password reset successfully! Logging you into Admin Dashboard...');
-        setPassword(newPassword);
-        localStorage.setItem('adminToken', 'true');
+        if (res.data.token) {
+          localStorage.setItem('adminToken', res.data.token);
+        }
         setTimeout(() => {
           navigate('/admin');
         }, 1200);

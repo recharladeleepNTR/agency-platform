@@ -45,13 +45,15 @@ const uploadMiddleware = (req, res, next) => {
   });
 };
 
+const { protectAdmin } = require('../middleware/authMiddleware');
+
 router.route('/')
   .get(getPortfolioItems)
-  .post(uploadMiddleware, uploadPortfolioItem)
-  .delete(clearAllPortfolioItems);
+  .post(protectAdmin, uploadMiddleware, uploadPortfolioItem)
+  .delete(protectAdmin, clearAllPortfolioItems);
 
 router.route('/:id')
-  .put(uploadMiddleware, updatePortfolioItem)
-  .delete(deletePortfolioItem);
+  .put(protectAdmin, uploadMiddleware, updatePortfolioItem)
+  .delete(protectAdmin, deletePortfolioItem);
 
 module.exports = router;

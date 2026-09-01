@@ -1,18 +1,29 @@
 const express = require('express');
 const router = express.Router();
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const AdminUser = require('../models/AdminUser');
 const { sendOTPEmail } = require('../config/mailer');
+require('dotenv').config();
+
+const getAdminEmail = () => process.env.ADMIN_EMAIL || 'lazydition@gmail.com';
+const getAdminPassword = () => process.env.ADMIN_PASSWORD || 'adminsuhas007';
+const getJwtSecret = () => process.env.JWT_SECRET || 'lazydition_fallback_secret';
 
 // Helper to seed default admin credentials on startup
 const seedAdmin = async () => {
   try {
-    const admin = await AdminUser.findOne({ email: 'lazydition@gmail.com' });
+    const adminEmail = getAdminEmail();
+    const adminPassword = getAdminPassword();
+    let admin = await AdminUser.findOne({ email: adminEmail });
+
     if (!admin) {
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
       await AdminUser.create({
-        email: 'lazydition@gmail.com',
-        password: 'adminsuhas007'
+        email: adminEmail,
+        password: hashedPassword
       });
-      console.log('🔑 Admin Account Seeded: lazydition@gmail.com / adminsuhas007');
+      console.log(`🔑 Admin Account Seeded for ${adminEmail}`);
     }
   } catch (err) {
     console.error('Error seeding admin user:', err.message);
@@ -20,6 +31,11 @@ const seedAdmin = async () => {
 };
 
 seedAdmin();
+
+// Helper to sign JWT token
+const generateToken = (email, id) => {
+  return jwt.sign({ email, id }, getJwtSecret(), { expiresIn: '7d' });
+};
 
 // @desc    Admin Login
 // @route   POST /api/auth/login
@@ -31,32 +47,53 @@ router.post('/login', async (req, res) => {
   }
 
   const cleanEmail = email.trim().toLowerCase();
+  const configuredAdminEmail = getAdminEmail().toLowerCase();
+  const configuredAdminPassword = getAdminPassword();
+
+  if (cleanEmail !== configuredAdminEmail) {
+    return res.status(401).json({ success: false, message: 'Invalid credentials.' });
+  }
 
   try {
     let admin = await AdminUser.findOne({ email: cleanEmail });
 
-    // Fallback seed if DB was purged
-    if (!admin && cleanEmail === 'lazydition@gmail.com') {
+    // Seed if missing
+    if (!admin) {
+      const hashedPassword = await bcrypt.hash(configuredAdminPassword, 10);
       admin = await AdminUser.create({
-        email: 'lazydition@gmail.com',
-        password: 'adminsuhas007'
+        email: cleanEmail,
+        password: hashedPassword
       });
     }
 
-    if (admin && admin.password === password) {
-      return res.json({ success: true, token: 'lazydition_admin_token_active', email: admin.email });
+    let isMatch = false;
+
+    // Check bcrypt hash or direct match
+    if (admin.password.startsWith('$2a$') || admin.password.startsWith('$2b$')) {
+      isMatch = await bcrypt.compare(password, admin.password);
+    } else {
+      isMatch = (password === admin.password) || (password === configuredAdminPassword);
+      if (isMatch) {
+        // Upgrade to bcrypt hash
+        admin.password = await bcrypt.hash(password, 10);
+        await admin.save();
+      }
     }
 
-    // Direct credential check fallback
-    if (cleanEmail === 'lazydition@gmail.com' && password === 'adminsuhas007') {
-      return res.json({ success: true, token: 'lazydition_admin_token_active', email: 'lazydition@gmail.com' });
+    if (!isMatch && password === configuredAdminPassword) {
+      isMatch = true;
     }
 
-    return res.status(401).json({ success: false, message: 'Invalid credentials. User ID or Password incorrect.' });
+    if (isMatch) {
+      const token = generateToken(admin.email, admin._id);
+      return res.json({ success: true, token, email: admin.email });
+    }
+
+    return res.status(401).json({ success: false, message: 'Invalid User ID or Password.' });
   } catch (err) {
-    // Fallback check if MongoDB connection issue
-    if (cleanEmail === 'lazydition@gmail.com' && password === 'adminsuhas007') {
-      return res.json({ success: true, token: 'lazydition_admin_token_active', email: 'lazydition@gmail.com' });
+    if (password === configuredAdminPassword) {
+      const token = generateToken(cleanEmail, 'fallback_id');
+      return res.json({ success: true, token, email: cleanEmail });
     }
     return res.status(500).json({ success: false, message: err.message });
   }
@@ -71,7 +108,9 @@ router.post('/send-otp', async (req, res) => {
   }
 
   const cleanEmail = email.trim().toLowerCase();
-  if (cleanEmail !== 'lazydition@gmail.com') {
+  const configuredAdminEmail = getAdminEmail().toLowerCase();
+
+  if (cleanEmail !== configuredAdminEmail) {
     return res.status(404).json({ success: false, message: 'Admin email not recognized.' });
   }
 
@@ -82,9 +121,10 @@ router.post('/send-otp', async (req, res) => {
   try {
     let admin = await AdminUser.findOne({ email: cleanEmail });
     if (!admin) {
+      const hashedPassword = await bcrypt.hash(getAdminPassword(), 10);
       admin = await AdminUser.create({
         email: cleanEmail,
-        password: 'adminsuhas007',
+        password: hashedPassword,
         otpCode,
         otpExpiresAt
       });
@@ -96,7 +136,7 @@ router.post('/send-otp', async (req, res) => {
 
     const emailSent = await sendOTPEmail(cleanEmail, otpCode);
     if (!emailSent) {
-      return res.status(500).json({ success: false, message: 'Could not send OTP email via SMTP. Check server credentials.' });
+      return res.status(500).json({ success: false, message: 'Could not send OTP email via SMTP. Check server environment.' });
     }
 
     return res.json({ success: true, message: `OTP sent successfully to ${cleanEmail}` });
@@ -131,13 +171,14 @@ router.post('/reset-password', async (req, res) => {
       return res.status(400).json({ success: false, message: 'OTP code has expired. Please request a new OTP.' });
     }
 
-    // Update password and clear OTP
-    admin.password = newPassword;
+    // Update password with bcrypt hash and clear OTP
+    admin.password = await bcrypt.hash(newPassword, 10);
     admin.otpCode = null;
     admin.otpExpiresAt = null;
     await admin.save();
 
-    return res.json({ success: true, message: 'Password updated successfully! You can now log in.' });
+    const token = generateToken(admin.email, admin._id);
+    return res.json({ success: true, token, message: 'Password updated successfully! Logging you in...' });
   } catch (err) {
     return res.status(500).json({ success: false, message: err.message });
   }

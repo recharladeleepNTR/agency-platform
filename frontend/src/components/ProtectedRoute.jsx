@@ -9,7 +9,8 @@ const ProtectedRoute = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const hasAdminToken = localStorage.getItem('adminToken') === 'true';
+    const token = localStorage.getItem('adminToken');
+    const hasAdminToken = Boolean(token && token !== 'false');
     if (hasAdminToken) {
       setUser({ role: 'admin' });
       setLoading(false);
@@ -25,7 +26,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) return <LoadingSpinner />;
 
-  if (!user && localStorage.getItem('adminToken') !== 'true') {
+  const token = localStorage.getItem('adminToken');
+  const hasAdminToken = Boolean(token && token !== 'false');
+
+  if (!user && !hasAdminToken) {
     return <Navigate to="/login" replace />;
   }
 
