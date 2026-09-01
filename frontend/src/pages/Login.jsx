@@ -6,8 +6,8 @@ import { apiRequest } from '../api/client';
 
 const Login = () => {
   const [mode, setMode]         = useState('login'); // 'login' | 'send_otp' | 'reset_password'
-  const [email, setEmail]       = useState('lazydition@gmail.com');
-  const [password, setPassword] = useState('adminsuhas007');
+  const [email, setEmail]       = useState('');
+  const [password, setPassword] = useState('');
   
   // OTP Reset State
   const [otp, setOtp]                 = useState('');
@@ -48,7 +48,7 @@ const Login = () => {
       return;
     }
 
-    setError('Invalid User ID or Password. Default: lazydition@gmail.com / adminsuhas007');
+    setError('Invalid User ID or Password.');
     setLoading(false);
   };
 
@@ -174,17 +174,7 @@ const Login = () => {
             </>
           )}
 
-          {/* Admin Credentials Info Box */}
-          {mode === 'login' && (
-            <div className="mb-6 p-4 rounded-xl bg-lazyAccent/10 border border-lazyAccent/30 text-xs text-lazyText flex items-center gap-3">
-              <KeyRound className="w-5 h-5 text-lazyAccent flex-shrink-0" />
-              <div>
-                <p className="font-extrabold text-white">Lazydition Admin Credentials:</p>
-                <p className="text-white/90 font-mono mt-0.5">User ID: lazydition@gmail.com</p>
-                <p className="text-white/90 font-mono">Password: adminsuhas007</p>
-              </div>
-            </div>
-          )}
+
 
           {error && (
             <motion.div
