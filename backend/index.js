@@ -69,6 +69,7 @@ app.get('/uploads/:filename', (req, res, next) => {
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
+app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/portfolio', require('./routes/portfolioRoutes'));
 app.use('/api/applications', require('./routes/applicationRoutes'));
 app.use('/api/inquiries', require('./routes/applicationRoutes'));
