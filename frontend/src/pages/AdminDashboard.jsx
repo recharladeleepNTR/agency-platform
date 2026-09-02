@@ -858,11 +858,13 @@ const AdminDashboard = () => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs text-white/80 font-medium">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 text-xs text-white/80 font-medium">
                         <div><strong className="text-lazyAccent">Email:</strong> {app.email}</div>
-                        <div className="flex items-center gap-1.5"><strong className="text-lazyAccent">Country:</strong> <CountryFlag country={app.country} className="w-4 h-3 rounded-xs object-cover flex-shrink-0" /> <span>{app.country}</span></div>
-                        <div><strong className="text-lazyAccent">Service:</strong> {app.serviceType}</div>
-                        <div><strong className="text-lazyAccent">Platform:</strong> {app.platform}</div>
+                        <div className="flex items-center gap-1.5"><strong className="text-lazyAccent">Country:</strong> <CountryFlag country={app.country} className="w-4 h-3 rounded-xs object-cover flex-shrink-0" /> <span>{app.country || 'N/A'}</span></div>
+                        <div><strong className="text-lazyAccent">Service:</strong> {app.serviceType || 'N/A'}</div>
+                        <div><strong className="text-lazyAccent">Platform:</strong> {app.platform || 'N/A'}</div>
+                        <div><strong className="text-lazyAccent">Volume:</strong> {app.volume || 'N/A'}</div>
+                        <div><strong className="text-lazyAccent">Budget:</strong> {app.budget || 'N/A'}</div>
                       </div>
 
                       {app.message && (
