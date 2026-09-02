@@ -193,13 +193,16 @@ const Login = () => {
           <AnimatePresence mode="wait">
             {/* ── 1. LOGIN FORM ── */}
             {mode === 'login' && (
-              <motion.form key="login-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleLogin} className="space-y-4">
+              <motion.form key="login-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleLogin} autoComplete="off" className="space-y-4">
                 <div>
                   <label className="block text-sm font-extrabold text-white mb-2">User ID / Email</label>
                   <input
                     type="email" required
+                    autoComplete="off"
+                    autoFocus={false}
+                    name="admin_login_email_field"
                     value={email} onChange={(e) => setEmail(e.target.value)}
-                    className={inputCls} placeholder="lazydition@gmail.com"
+                    className={inputCls} placeholder="Enter your email"
                   />
                 </div>
                 <div>
@@ -216,6 +219,9 @@ const Login = () => {
                   <div className="relative">
                     <input
                       type={showPw ? 'text' : 'password'} required
+                      autoComplete="new-password"
+                      autoFocus={false}
+                      name="admin_login_password_field"
                       value={password} onChange={(e) => setPassword(e.target.value)}
                       className={`${inputCls} pr-12`} placeholder="••••••••"
                     />
@@ -245,13 +251,15 @@ const Login = () => {
 
             {/* ── 2. SEND OTP FORM ── */}
             {mode === 'send_otp' && (
-              <motion.form key="send-otp-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleSendOTP} className="space-y-4">
+              <motion.form key="send-otp-form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onSubmit={handleSendOTP} autoComplete="off" className="space-y-4">
                 <div>
                   <label className="block text-sm font-extrabold text-white mb-2">Admin Email Address</label>
                   <input
                     type="email" required
+                    autoComplete="off"
+                    autoFocus={false}
                     value={email} onChange={(e) => setEmail(e.target.value)}
-                    className={inputCls} placeholder="lazydition@gmail.com"
+                    className={inputCls} placeholder="Enter your email"
                   />
                 </div>
 
