@@ -32,13 +32,17 @@ const createApplication = asyncHandler(async (req, res) => {
 
   const appPayload = savedApp.toObject ? savedApp.toObject() : { ...req.body, _id: savedApp._id };
 
-  // 2. Immediately send HTTP 201 response to client so UI never blocks
-  res.status(201).json({ success: true, message: 'Inquiry received', data: savedApp });
+  // 2. Await Nodemailer SMTP Email Dispatch so Render/serverless runtime does not kill background socket promises
+  try {
+    console.log(`Attempting to send email via SMTP to: ${process.env.CLIENT_NOTIFICATION_EMAIL || 'lazydition@gmail.com'}`);
+    const emailResult = await sendInquiryEmail(appPayload);
+    console.log(`[Email Dispatch Status for ${email}]: ${emailResult ? 'SUCCESS' : 'FAILED'}`);
+  } catch (emailErr) {
+    console.error('Nodemailer dispatch error details:', emailErr.message || emailErr);
+  }
 
-  // 3. Dispatch Nodemailer SMTP email asynchronously in background
-  sendInquiryEmail(appPayload)
-    .then((result) => console.log(`[Background Email Dispatch Status for ${email}]: ${result ? 'SUCCESS' : 'FAILED'}`))
-    .catch((err) => console.error('❌ Background email dispatch failed:', err.message || err));
+  // 3. Return HTTP 201 response with created application document
+  return res.status(201).json({ success: true, message: 'Inquiry received', data: savedApp });
 });
 
 // @desc    Delete application directly from MongoDB

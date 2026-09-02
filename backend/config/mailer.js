@@ -2,22 +2,33 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const createTransporter = () => {
-  if (process.env.SMTP_HOST && process.env.SMTP_USER) {
+  const user = (process.env.SMTP_USER || '').trim();
+  const pass = (process.env.SMTP_PASS || '').trim();
+  const host = (process.env.SMTP_HOST || 'smtp.gmail.com').trim();
+  const port = Number(process.env.SMTP_PORT) || 587;
+  const isSecure = process.env.SMTP_SECURE === 'true' || port === 465;
+
+  if (host && user && pass) {
     return nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT) || 587,
-      secure: process.env.SMTP_SECURE === 'true',
+      host,
+      port,
+      secure: isSecure,
       auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user,
+        pass,
       },
+      connectionTimeout: 8000,
+      greetingTimeout: 8000,
+      socketTimeout: 12000,
     });
   }
   return null;
 };
 
 const sendInquiryEmail = async (applicationData) => {
-  const clientEmail = process.env.CLIENT_NOTIFICATION_EMAIL || process.env.SMTP_USER;
+  const clientEmail = (process.env.CLIENT_NOTIFICATION_EMAIL || process.env.SMTP_USER || 'lazydition@gmail.com').trim();
+  console.log('Attempting to send email via SMTP to:', clientEmail);
+
   if (!clientEmail) {
     console.log('CLIENT_NOTIFICATION_EMAIL not set in .env. Inquiry saved in DB & Admin Dashboard.');
     return false;
@@ -25,12 +36,12 @@ const sendInquiryEmail = async (applicationData) => {
 
   const transporter = createTransporter();
   if (!transporter) {
-    console.log(`[Notification Engine] Application from ${applicationData.email} stored for client: ${clientEmail}`);
+    console.error('Nodemailer dispatch error details: Missing SMTP_HOST, SMTP_USER, or SMTP_PASS in environment variables.');
     return false;
   }
 
   const mailOptions = {
-    from: `"Agency Platform" <${process.env.SMTP_USER}>`,
+    from: `"Agency Platform" <${process.env.SMTP_USER || 'lazydition@gmail.com'}>`,
     to: clientEmail,
     replyTo: applicationData.email,
     subject: `🚨 New Client Application: ${applicationData.name} (${applicationData.role || 'Creator'})`,
@@ -67,7 +78,7 @@ const sendInquiryEmail = async (applicationData) => {
     console.log(`✅ Inquiry notification email successfully sent to ${clientEmail}`);
     return true;
   } catch (err) {
-    console.error('Failed to send email notification:', err.message);
+    console.error('Nodemailer dispatch error details:', err);
     return false;
   }
 };
