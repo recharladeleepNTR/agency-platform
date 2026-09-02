@@ -90,14 +90,19 @@ const Contact = () => {
       status: 'New'
     };
 
-    // 1. Post directly to MongoDB Database API (Single Source of Truth)
+    // 1. Post directly to MongoDB Database API with a strict 15s timeout
     try {
-      await apiRequest('POST', '/applications', payload);
+      await apiRequest('POST', '/applications', payload, { timeout: 15000 });
       setSubmitted(true);
       setForm(INIT);
     } catch (err) {
       console.error('MongoDB database save failed:', err);
-      alert(`Submission Error: Could not save inquiry to database (${err.message || 'Server error'}). Please try again.`);
+      const isTimeout = err.code === 'ECONNABORTED' || (err.message && err.message.toLowerCase().includes('timeout'));
+      const errorMsg = isTimeout
+        ? 'Server took too long to respond. Please check your connection or try again.'
+        : `Submission Error: ${err.response?.data?.message || err.message || 'Could not send inquiry'}. Please try again.`;
+      
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }
