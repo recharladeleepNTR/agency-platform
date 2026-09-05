@@ -99,28 +99,27 @@ const updatePortfolioItem = asyncHandler(async (req, res) => {
     mediaPath = saveBase64ToFile(img || mediaUrl);
   }
 
+  // Find exact item by _id or id
   const existingItem = await PortfolioItem.findOne({ $or: [{ _id: targetId }, { id: targetId }] });
 
-  const updatedFields = {
-    title: title || (existingItem ? existingItem.title : 'Work Preview Item'),
-    subtitle: subtitle !== undefined ? subtitle : (existingItem ? existingItem.subtitle : ''),
-    ratio: ratio || (existingItem ? existingItem.ratio : 'Work Preview - Slot 1 (9:16)'),
-    category: category || (existingItem ? existingItem.category : 'Work Preview'),
-    tag: tag || category || (existingItem ? existingItem.tag : 'Work Preview'),
-    isExclusive: isExclusive !== undefined ? (isExclusive === 'true' || isExclusive === true) : (existingItem ? existingItem.isExclusive : false),
-  };
-
-  if (mediaPath) {
-    updatedFields.img = mediaPath;
-    updatedFields.mediaUrl = mediaPath;
+  if (!existingItem) {
+    res.status(404);
+    throw new Error(`Portfolio item with ID "${targetId}" not found in database.`);
   }
 
-  const updatedItem = await PortfolioItem.findOneAndUpdate(
-    { $or: [{ _id: targetId }, { id: targetId }] },
-    { $set: updatedFields },
-    { new: true, upsert: true }
-  );
+  if (title) existingItem.title = title;
+  if (subtitle !== undefined) existingItem.subtitle = subtitle;
+  if (ratio) existingItem.ratio = ratio;
+  if (category) existingItem.category = category;
+  if (tag) existingItem.tag = tag;
+  if (isExclusive !== undefined) existingItem.isExclusive = (isExclusive === 'true' || isExclusive === true);
 
+  if (mediaPath) {
+    existingItem.img = mediaPath;
+    existingItem.mediaUrl = mediaPath;
+  }
+
+  const updatedItem = await existingItem.save();
   res.json(updatedItem);
 });
 

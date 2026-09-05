@@ -255,61 +255,64 @@ const Portfolio = () => {
               </button>
             )}
 
-            {visibleSlots.map(({ item, slot, isCenter }, idx) => {
-              if (!item) return null;
-              const rawUrl = item.img || item.mediaUrl;
-              const mediaImage = getMediaUrl(rawUrl, '/uploads/img_1787335251860_szynt.jpg');
-              const itemKey = item._id || item.id || `post-${idx}`;
+            {/* 3D Stage Field */}
+            <div className="relative w-full max-w-5xl h-[380px] sm:h-[420px] flex items-center justify-center [perspective:1200px] select-none">
+              {visibleSlots.map(({ item, slot, isCenter }, slotIdx) => {
+                if (!item) return null;
+                const rawUrl = item.img || item.mediaUrl;
+                const mediaImage = getMediaUrl(rawUrl, '/uploads/img_1787333949894_1jmf0.jpg');
+                const itemKey = item._id || item.id || `item-${slotIdx}`;
 
-              return (
-                <motion.div
-                  key={itemKey}
-                  initial={false}
-                  animate={{
-                    x: slot.x,
-                    z: slot.z,
-                    rotateY: slot.ry,
-                    scale: slot.s,
-                    opacity: slot.o,
-                  }}
-                  transition={{
-                    duration: 0.9,
-                    ease: [0.25, 1, 0.5, 1],
-                  }}
-                  style={{
-                    position: 'absolute',
-                    top: '50%',
-                    left: '50%',
-                    transformStyle: 'preserve-3d',
-                    willChange: 'transform, opacity',
-                  }}
-                  className={`
-                    w-[270px] sm:w-[300px] h-[340px] sm:h-[375px] rounded-2xl overflow-hidden
-                    -ml-[135px] -mt-[170px] md:-ml-[150px] md:-mt-[187.5px]
-                    ${isCenter
-                      ? 'border-2 border-lazyAccent/80 shadow-[0_0_50px_rgba(148,148,255,0.45)] z-30'
-                      : 'border border-white/15 shadow-xl z-10 hover:border-lazyAccent/40'
-                    }
-                    bg-[#140622] group transition-colors duration-300 relative
-                  `}
-                  onContextMenu={(e) => e.preventDefault()}
-                >
-                  <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
-                  <img
-                    src={mediaImage}
-                    alt="Client Work"
-                    loading="lazy"
-                    decoding="async"
-                    onContextMenu={(e) => e.preventDefault()}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/uploads/img_1787335251860_szynt.jpg';
+                return (
+                  <motion.div
+                    key={`${itemKey}-slot-${slotIdx}`}
+                    initial={false}
+                    animate={{
+                      x: slot.x,
+                      z: slot.z,
+                      rotateY: slot.ry,
+                      scale: slot.s,
+                      opacity: slot.o,
                     }}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 pointer-events-none"
-                  />
-                </motion.div>
-              );
-            })}
+                    transition={{
+                      duration: 0.8,
+                      ease: [0.25, 1, 0.5, 1],
+                    }}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transformStyle: 'preserve-3d',
+                      willChange: 'transform, opacity',
+                    }}
+                    className={`
+                      w-[270px] sm:w-[300px] h-[340px] sm:h-[375px] max-w-[300px] aspect-[4/5] rounded-2xl overflow-hidden
+                      -ml-[135px] -mt-[170px] md:-ml-[150px] md:-mt-[187.5px]
+                      ${isCenter
+                        ? 'border-2 border-lazyAccent/80 shadow-[0_0_50px_rgba(148,148,255,0.45)] z-30 pointer-events-auto'
+                        : 'border border-white/15 shadow-xl z-10 hover:border-lazyAccent/40 pointer-events-auto'
+                      }
+                      bg-[#140622] group transition-colors duration-300 relative
+                    `}
+                    onContextMenu={(e) => e.preventDefault()}
+                  >
+                    <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
+                    <img
+                      src={mediaImage}
+                      alt="Client Work"
+                      loading="lazy"
+                      decoding="async"
+                      onContextMenu={(e) => e.preventDefault()}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = '/uploads/img_1787335251860_szynt.jpg';
+                      }}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+                    />
+                  </motion.div>
+                );
+              })}
+            </div>
           </div>
 
           {/* Dots Indicator */}
