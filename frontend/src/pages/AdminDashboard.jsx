@@ -10,14 +10,14 @@ import CountryFlag from '../components/CountryFlag';
 const inputCls = 'w-full bg-[#180926] border-2 border-lazyAccent/35 text-white font-medium rounded-xl px-4 py-3 text-sm outline-none focus:border-lazyAccent focus:bg-[#210d33] transition-all placeholder:text-white/40 shadow-inner';
 const btnCls  = 'px-5 py-2.5 rounded-xl font-bold text-sm transition-all';
 
-/* High-Fidelity Image & Video Processing */
+/* High-Fidelity Image & Video Processing (Max 1200px, JPEG Quality 0.80 -> ~150-250 KB Base64) */
 const compressAndResize = (fileOrDataUrl, callback) => {
   const processSrc = (srcUrl) => {
     const img = new window.Image();
     img.crossOrigin = 'Anonymous';
     img.onload = () => {
       const canvas = document.createElement('canvas');
-      const MAX_SIZE = 2560;
+      const MAX_SIZE = 1200;
       let width = img.width;
       let height = img.height;
 
@@ -38,7 +38,7 @@ const compressAndResize = (fileOrDataUrl, callback) => {
       ctx.imageSmoothingQuality = 'high';
       ctx.drawImage(img, 0, 0, width, height);
 
-      const compressedUrl = canvas.toDataURL('image/jpeg', 0.92);
+      const compressedUrl = canvas.toDataURL('image/jpeg', 0.80);
       callback(compressedUrl);
     };
     img.onerror = () => {

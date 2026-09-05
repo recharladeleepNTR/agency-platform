@@ -3,11 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const PortfolioItem = require('../models/PortfolioItem');
 
-// Helper to save base64 image & video strings as physical files in /uploads
+// Helper to save base64 image & video strings
 const saveBase64ToFile = (base64Str) => {
   if (!base64Str || typeof base64Str !== 'string') return '/card_own_power.png';
   if (base64Str.startsWith('blob:')) return '/card_own_power.png';
   if (!base64Str.startsWith('data:')) {
+    return base64Str;
+  }
+  // Store compressed image Base64 dataURL strings directly in MongoDB Atlas for 100% zero-cost permanent persistence across Render container restarts!
+  if (base64Str.startsWith('data:image/')) {
     return base64Str;
   }
   try {
