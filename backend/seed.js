@@ -15,40 +15,38 @@ const seedDB = async () => {
     await Testimonial.deleteMany();
     console.log('Existing data cleared');
 
-    // Portfolio Data
+    // Portfolio Data (23 Distinct Items Across Ratios)
     const portfolioData = [
-      {
-        title: "OWN YOUR POWER",
-        ratio: "4:5",
-        category: "Poster",
-        isExclusive: false,
-        mediaUrl: "/card_own_power.png"
-      },
-      {
-        title: "BUILD YOUR BRAND",
-        ratio: "4:5",
-        category: "Social Post",
-        isExclusive: false,
-        mediaUrl: "/card_build_brand.png"
-      },
-      {
-        title: "NO LIMITS",
-        ratio: "16:9",
-        category: "YouTube Thumbnail",
-        isExclusive: false,
-        mediaUrl: "/card_no_limits.png"
-      },
-      {
-        title: "UNLEASH CREATIVITY",
-        ratio: "16:9",
-        category: "Banner",
-        isExclusive: true,
-        mediaUrl: "/card_unleash.png"
-      }
+      // 4:5 Posters (8 Items)
+      { _id: 'p1', id: 'p1', title: 'Work Poster 1', img: '/uploads/img_1787333949894_1jmf0.jpg', mediaUrl: '/uploads/img_1787333949894_1jmf0.jpg', ratio: '4:5', category: 'Design', tag: 'Design' },
+      { _id: 'p2', id: 'p2', title: 'Work Poster 2', img: '/uploads/img_1787333959824_d5d5t.jpg', mediaUrl: '/uploads/img_1787333959824_d5d5t.jpg', ratio: '4:5', category: 'Design', tag: 'Design' },
+      { _id: 'p3', id: 'p3', title: 'Work Poster 3', img: '/uploads/img_1787333971022_a6gxa.png', mediaUrl: '/uploads/img_1787333971022_a6gxa.png', ratio: '4:5', category: 'Design', tag: 'Design' },
+      { _id: 'p4', id: 'p4', title: 'Work Poster 4', img: '/uploads/img_1787333981872_baixa.png', mediaUrl: '/uploads/img_1787333981872_baixa.png', ratio: '4:5', category: 'Design', tag: 'Design' },
+      { _id: 'p5', id: 'p5', title: 'Work Poster 5', img: '/uploads/img_1787333992992_iyf98.jpg', mediaUrl: '/uploads/img_1787333992992_iyf98.jpg', ratio: '4:5', category: 'Design', tag: 'Design' },
+      { _id: 'p6', id: 'p6', title: 'Work Poster 6', img: '/uploads/img_1787334002671_273ss.jpg', mediaUrl: '/uploads/img_1787334002671_273ss.jpg', ratio: '4:5', category: 'Design', tag: 'Design' },
+      { _id: 'p7', id: 'p7', title: 'Work Poster 7', img: '/uploads/img_1787334017008_lj9un.jpg', mediaUrl: '/uploads/img_1787334017008_lj9un.jpg', ratio: '4:5', category: 'Design', tag: 'Design' },
+      { _id: 'p8', id: 'p8', title: 'Work Poster 8', img: '/uploads/img_1787334033661_lxfkj.jpg', mediaUrl: '/uploads/img_1787334033661_lxfkj.jpg', ratio: '4:5', category: 'Design', tag: 'Design' },
+      // 16:9 Thumbnails (12 Items)
+      { _id: 't1', id: 't1', title: 'Widescreen Work 1', img: '/uploads/img_1787334805662_b1tw7.jpg', mediaUrl: '/uploads/img_1787334805662_b1tw7.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't2', id: 't2', title: 'Widescreen Work 2', img: '/uploads/img_1787335251860_szynt.jpg', mediaUrl: '/uploads/img_1787335251860_szynt.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't3', id: 't3', title: 'Widescreen Work 3', img: '/uploads/img_1787335265295_lkbrl.jpg', mediaUrl: '/uploads/img_1787335265295_lkbrl.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't4', id: 't4', title: 'Widescreen Work 4', img: '/uploads/img_1787335277827_huaja.jpg', mediaUrl: '/uploads/img_1787335277827_huaja.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't5', id: 't5', title: 'Widescreen Work 5', img: '/uploads/img_1787335292227_aqdyj.jpg', mediaUrl: '/uploads/img_1787335292227_aqdyj.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't6', id: 't6', title: 'Widescreen Work 6', img: '/uploads/img_1787335301578_kbkua.jpg', mediaUrl: '/uploads/img_1787335301578_kbkua.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't7', id: 't7', title: 'Widescreen Work 7', img: '/uploads/img_1787335313226_ekbud.jpg', mediaUrl: '/uploads/img_1787335313226_ekbud.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't8', id: 't8', title: 'Widescreen Work 8', img: '/uploads/img_1787335327424_4ukqc.jpg', mediaUrl: '/uploads/img_1787335327424_4ukqc.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't9', id: 't9', title: 'Widescreen Work 9', img: '/uploads/img_1787335385637_80rgz.jpg', mediaUrl: '/uploads/img_1787335385637_80rgz.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't10', id: 't10', title: 'Widescreen Work 10', img: '/uploads/img_1787335404823_ywbus.jpg', mediaUrl: '/uploads/img_1787335404823_ywbus.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't11', id: 't11', title: 'Widescreen Work 11', img: '/uploads/img_1787335417213_44yop.jpg', mediaUrl: '/uploads/img_1787335417213_44yop.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      { _id: 't12', id: 't12', title: 'Widescreen Work 12', img: '/uploads/img_1787335427940_6edkw.jpg', mediaUrl: '/uploads/img_1787335427940_6edkw.jpg', ratio: '16:9', category: 'Video Editing', tag: 'Video Editing' },
+      // Banner Items (3 Items)
+      { _id: 'b1', id: 'b1', title: 'Ultra Wide Banner 1', img: '/uploads/img_1787335466696_5zgbr.jpg', mediaUrl: '/uploads/img_1787335466696_5zgbr.jpg', ratio: 'Banner', category: 'Banner Design', tag: 'Banner Design' },
+      { _id: 'b2', id: 'b2', title: 'Ultra Wide Banner 2', img: '/uploads/img_1787335477095_2pm9i.jpg', mediaUrl: '/uploads/img_1787335477095_2pm9i.jpg', ratio: 'Banner', category: 'Banner Design', tag: 'Banner Design' },
+      { _id: 'b3', id: 'b3', title: 'Ultra Wide Banner 3', img: '/uploads/img_1787335486546_tep7i.jpg', mediaUrl: '/uploads/img_1787335486546_tep7i.jpg', ratio: 'Banner', category: 'Banner Design', tag: 'Banner Design' },
     ];
 
     await PortfolioItem.insertMany(portfolioData);
-    console.log('Portfolio data seeded');
+    console.log('Portfolio data seeded successfully with 23 distinct items');
 
     // 17 Real Client Reviews
     const testimonialData = [
