@@ -59,7 +59,7 @@ const sendInquiryEmail = async (applicationData) => {
           <tr><td style="padding: 8px 0; color: #aaaaaa;">Country:</td><td style="font-weight: bold; color: #ffffff;">${applicationData.country}</td></tr>
         </table>
 
-        ${applicationData.contentDetails ? `<div style="background: #140622; padding: 15px; border-radius: 10px; margin-bottom: 15px;"><strong>Content Details:</strong> ${applicationData.contentDetails}</div>` : ''}
+        ${(applicationData.contentTypeDetails || applicationData.contentDetails) ? `<div style="background: #140622; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #9494ff40;"><strong style="color: #9494ff;">👉 Content Specifics / Type Details:</strong><br/>${applicationData.contentTypeDetails || applicationData.contentDetails}</div>` : ''}
 
         <div style="background: #140622; padding: 15px; border-radius: 10px;">
           <strong>Message:</strong><br/>

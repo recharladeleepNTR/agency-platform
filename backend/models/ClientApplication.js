@@ -7,6 +7,7 @@ const clientApplicationSchema = new mongoose.Schema({
   country: { type: String, default: '' },
   serviceType: { type: String, default: '' },
   contentDetails: { type: String, default: '' },
+  contentTypeDetails: { type: String, trim: true, default: '' },
   platform: { type: String, default: '' },
   volume: { type: String, default: '' },
   budget: { type: String, default: '' },

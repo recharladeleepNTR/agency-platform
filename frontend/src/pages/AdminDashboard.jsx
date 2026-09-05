@@ -805,8 +805,16 @@ const AdminDashboard = () => {
                         <div><strong className="text-lazyAccent">Budget:</strong> {app.budget || 'N/A'}</div>
                       </div>
 
+                      {(app.contentTypeDetails || app.contentDetails) && (app.contentTypeDetails !== 'N/A' && app.contentDetails !== 'N/A') && (
+                        <div className="p-3.5 rounded-xl bg-lazyAccent/10 border border-lazyAccent/30 text-xs text-white/90 font-medium">
+                          <strong className="text-lazyAccent block mb-1">👉 Content Specifics / Type Details:</strong>
+                          <span>{app.contentTypeDetails || app.contentDetails}</span>
+                        </div>
+                      )}
+
                       {app.message && (
                         <div className="p-3.5 rounded-xl bg-black/40 border border-white/5 text-xs text-white/90 italic">
+                          <strong className="text-white/50 block not-italic mb-1 font-bold">Message:</strong>
                           "{app.message}"
                         </div>
                       )}

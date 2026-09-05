@@ -83,6 +83,7 @@ const Contact = () => {
       serviceType: serviceName,
       platform: platformName,
       contentDetails: form.contentDetails || 'N/A',
+      contentTypeDetails: form.contentDetails || 'N/A',
       volume: `${form.volumeCount || '1'} ${form.volumeUnit}`,
       budget: form.budget || 'Not specified',
       message: form.message || 'N/A',

@@ -14,7 +14,9 @@ const getApplications = asyncHandler(async (req, res) => {
 // @route   POST /api/applications
 // @access  Public
 const createApplication = asyncHandler(async (req, res) => {
-  const { role, name, email, country, serviceType, volume, budget, message, platform, contentDetails } = req.body;
+  const { role, name, email, country, serviceType, volume, budget, message, platform, contentDetails, contentTypeDetails } = req.body;
+
+  const details = contentTypeDetails || contentDetails || '';
 
   // 1. Save document to MongoDB Atlas (Single Source of Truth)
   const savedApp = await ClientApplication.create({
@@ -27,7 +29,8 @@ const createApplication = asyncHandler(async (req, res) => {
     budget,
     message,
     platform,
-    contentDetails,
+    contentDetails: details,
+    contentTypeDetails: details,
   });
 
   const appPayload = savedApp.toObject ? savedApp.toObject() : { ...req.body, _id: savedApp._id };
