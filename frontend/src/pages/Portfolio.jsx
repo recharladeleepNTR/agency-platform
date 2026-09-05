@@ -78,13 +78,46 @@ const Portfolio = () => {
       setIsLoading(true);
       const r = await apiRequest('GET', '/portfolio');
       if (r.data && Array.isArray(r.data) && r.data.length > 0) {
-        const p45 = r.data.filter(i => i.ratio === '4:5' || !i.ratio);
-        const t169 = r.data.filter(i => i.ratio === '16:9');
-        const ban = r.data.filter(i => i.ratio === 'Banner' || i.ratio === '6:1');
+        const p45Raw = r.data.filter(i => !i.ratio || i.ratio === '4:5' || i.ratio.includes('4:5') || i.ratio.includes('9:16') || i.ratio.includes('Work Preview'));
+        const t169Raw = r.data.filter(i => i.ratio === '16:9' || (i.ratio && i.ratio.includes('16:9')));
+        const banRaw = r.data.filter(i => i.ratio === 'Banner' || i.ratio === '6:1' || (i.ratio && i.ratio.includes('Banner')));
 
-        setPosts45(p45.length > 0 ? p45 : DEFAULT_POSTS_45);
-        setThumbnails(t169.length > 0 ? t169 : DEFAULT_THUMBNAILS);
-        setBanners(ban.length > 0 ? ban : DEFAULT_BANNERS);
+        // Guarantee 8 distinct items for 4:5 3D Stage by filling missing slots with default posters
+        let finalP45 = [...p45Raw];
+        if (finalP45.length < DEFAULT_POSTS_45.length) {
+          const existingIds = new Set(finalP45.map(item => item._id || item.id));
+          for (const defaultItem of DEFAULT_POSTS_45) {
+            if (!existingIds.has(defaultItem.id) && finalP45.length < DEFAULT_POSTS_45.length) {
+              finalP45.push(defaultItem);
+            }
+          }
+        }
+
+        // Guarantee 12 distinct items for 16:9 Thumbnails
+        let finalT169 = [...t169Raw];
+        if (finalT169.length < DEFAULT_THUMBNAILS.length) {
+          const existingIds = new Set(finalT169.map(item => item._id || item.id));
+          for (const defaultItem of DEFAULT_THUMBNAILS) {
+            if (!existingIds.has(defaultItem.id) && finalT169.length < DEFAULT_THUMBNAILS.length) {
+              finalT169.push(defaultItem);
+            }
+          }
+        }
+
+        // Guarantee 3 distinct items for Banners
+        let finalBan = [...banRaw];
+        if (finalBan.length < DEFAULT_BANNERS.length) {
+          const existingIds = new Set(finalBan.map(item => item._id || item.id));
+          for (const defaultItem of DEFAULT_BANNERS) {
+            if (!existingIds.has(defaultItem.id) && finalBan.length < DEFAULT_BANNERS.length) {
+              finalBan.push(defaultItem);
+            }
+          }
+        }
+
+        setPosts45(finalP45.length > 0 ? finalP45 : DEFAULT_POSTS_45);
+        setThumbnails(finalT169.length > 0 ? finalT169 : DEFAULT_THUMBNAILS);
+        setBanners(finalBan.length > 0 ? finalBan : DEFAULT_BANNERS);
       } else {
         setPosts45(DEFAULT_POSTS_45);
         setThumbnails(DEFAULT_THUMBNAILS);
@@ -286,8 +319,8 @@ const Portfolio = () => {
                       willChange: 'transform, opacity',
                     }}
                     className={`
-                      w-[270px] sm:w-[300px] h-[340px] sm:h-[375px] max-w-[300px] aspect-[4/5] rounded-2xl overflow-hidden
-                      -ml-[135px] -mt-[170px] md:-ml-[150px] md:-mt-[187.5px]
+                      w-[260px] sm:w-[300px] h-[335px] sm:h-[375px] max-w-[300px] aspect-[4/5] rounded-2xl overflow-hidden
+                      -ml-[130px] -mt-[167.5px] md:-ml-[150px] md:-mt-[187.5px]
                       ${isCenter
                         ? 'border-2 border-lazyAccent/80 shadow-[0_0_50px_rgba(148,148,255,0.45)] z-30 pointer-events-auto'
                         : 'border border-white/15 shadow-xl z-10 hover:border-lazyAccent/40 pointer-events-auto'
@@ -299,7 +332,7 @@ const Portfolio = () => {
                     <div className="absolute inset-0 z-20 bg-transparent select-none" onContextMenu={(e) => e.preventDefault()} />
                     <img
                       src={mediaImage}
-                      alt="Client Work"
+                      alt={item.title || "Client Work"}
                       loading="lazy"
                       decoding="async"
                       onContextMenu={(e) => e.preventDefault()}
@@ -307,7 +340,7 @@ const Portfolio = () => {
                         e.target.onerror = null;
                         e.target.src = '/uploads/img_1787335251860_szynt.jpg';
                       }}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 pointer-events-none"
+                      className="w-full h-full object-cover select-none pointer-events-none group-hover:scale-105 transition-transform duration-700"
                     />
                   </motion.div>
                 );
